@@ -1,0 +1,1347 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Special One — Football AI</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--k:#07070F;--k2:#0D0D1A;--k3:#131320;--k4:#1A1A2A;--k5:#222235;--k6:#2D2D40;--g:#C9A84C;--g2:#E8CC7A;--g3:#8A6A20;--gf:rgba(201,168,76,.1);--w:#F4F1EC;--w2:#D0CCC4;--dim:#5C5A6E;--d2:#8E8BA0;--r:#B83030;--ln:rgba(201,168,76,.11);--ld:rgba(255,255,255,.045);}
+*{margin:0;padding:0;box-sizing:border-box;}html{scroll-behavior:smooth;}
+body{background:var(--k);color:var(--w);font-family:'DM Sans',sans-serif;font-size:14px;overflow-x:hidden;}
+::-webkit-scrollbar{width:3px;}::-webkit-scrollbar-thumb{background:rgba(201,168,76,.18);}
+.h{display:none!important;}
+#lb{position:fixed;top:0;right:90px;z-index:3000;display:flex;align-items:center;gap:3px;padding:10px 0;}
+.lb{background:none;border:none;font-family:'Space Mono',monospace;font-size:9px;color:var(--dim);cursor:pointer;padding:3px 5px;transition:color .15s;}
+.lb.on,.lb:hover{color:var(--g);}
+.ls{color:var(--dim);font-size:9px;opacity:.2;}
+#tst{position:fixed;bottom:24px;right:24px;background:var(--k3);border:1px solid var(--ln);color:var(--w);padding:11px 18px;font-size:12px;z-index:9999;transform:translateY(44px);opacity:0;transition:all .32s cubic-bezier(.34,1.56,.64,1);}
+#tst.on{transform:translateY(0);opacity:1;}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:1000;height:54px;display:flex;align-items:center;padding:0 32px;background:rgba(7,7,15,.96);backdrop-filter:blur(20px);border-bottom:1px solid var(--ln);}
+.nb{font-family:'Playfair Display',serif;font-size:15px;font-style:italic;color:var(--g);margin-right:32px;letter-spacing:1px;flex-shrink:0;}
+.nts{display:flex;flex:1;}
+.nt{background:none;border:none;font-family:'DM Sans',sans-serif;font-size:9px;font-weight:700;color:var(--dim);letter-spacing:2.5px;text-transform:uppercase;cursor:pointer;padding:0 13px;height:54px;transition:color .15s;position:relative;}
+.nt::after{content:'';position:absolute;bottom:0;left:13px;right:13px;height:1px;background:var(--g);transform:scaleX(0);transition:transform .2s;}
+.nt.on{color:var(--g);}.nt.on::after{transform:scaleX(1);}
+.nr{display:flex;align-items:center;gap:8px;margin-left:auto;cursor:pointer;}
+.nca{width:26px;height:26px;border:1px solid var(--g);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;}
+.ncn{font-size:9px;color:var(--d2);}
+
+/* PAGES */
+.pg{display:none;min-height:100vh;}.pg.on{display:block;}
+
+/* HOME */
+#phome{position:relative;overflow:hidden;}
+.hbg{position:absolute;inset:0;background:radial-gradient(ellipse 70% 55% at 62% 42%,rgba(201,168,76,.065),transparent 60%);}
+.hgl{position:absolute;inset:0;background-image:linear-gradient(rgba(201,168,76,.022) 1px,transparent 1px),linear-gradient(90deg,rgba(201,168,76,.022) 1px,transparent 1px);background-size:55px 55px;}
+.hero{max-width:1180px;margin:0 auto;padding:144px 50px 90px;display:grid;grid-template-columns:1fr 390px;gap:68px;align-items:center;min-height:100vh;position:relative;}
+.heb{font-family:'Space Mono',monospace;font-size:9px;color:var(--g3);letter-spacing:4px;text-transform:uppercase;margin-bottom:20px;display:flex;align-items:center;gap:12px;}
+.heb::before{content:'';width:24px;height:1px;background:var(--g3);}
+h1.hh{font-family:'Playfair Display',serif;font-size:clamp(50px,5.2vw,82px);font-weight:900;line-height:.92;margin-bottom:22px;}
+h1.hh em{font-style:italic;color:var(--g);display:block;}
+.hs{font-size:14px;font-weight:300;color:var(--d2);line-height:1.8;max-width:380px;margin-bottom:36px;}
+.hca{display:flex;gap:10px;flex-wrap:wrap;}
+.bg{display:inline-flex;align-items:center;gap:8px;background:var(--g);padding:12px 28px;font-family:'DM Sans',sans-serif;font-size:9px;font-weight:700;color:var(--k);letter-spacing:2.5px;text-transform:uppercase;cursor:pointer;transition:all .18s;border:none;}
+.bg:hover{background:var(--g2);}
+.bo{display:inline-flex;align-items:center;gap:8px;background:transparent;border:1px solid var(--ln);padding:12px 28px;font-family:'DM Sans',sans-serif;font-size:9px;font-weight:700;color:var(--d2);letter-spacing:2.5px;text-transform:uppercase;cursor:pointer;transition:all .18s;}
+.bo:hover{border-color:rgba(201,168,76,.3);color:var(--w);}
+.cprev{display:flex;flex-direction:column;gap:1px;background:var(--ln);}
+.cp{background:var(--k2);padding:13px 17px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:background .15s;}
+.cp:hover{background:var(--k3);}
+.cpa{width:40px;height:40px;flex-shrink:0;background:var(--k4);position:relative;overflow:hidden;display:flex;align-items:flex-end;justify-content:center;}
+.jn{position:absolute;top:2px;left:3px;font-family:'Playfair Display',serif;font-size:13px;font-weight:900;color:rgba(201,168,76,.18);}
+.fl{position:absolute;top:2px;right:3px;font-size:8px;}
+.fig{width:21px;height:29px;clip-path:polygon(28% 0%,72% 0%,88% 18%,88% 52%,100% 62%,100% 100%,0 100%,0 62%,12% 52%,12% 18%);}
+.cpii{flex:1;}.cpn{font-size:12px;font-weight:600;margin-bottom:1px;}.cpr{font-size:9px;color:var(--dim);}
+.cpq{font-family:'Playfair Display',serif;font-size:9px;font-style:italic;color:var(--g3);max-width:110px;text-align:right;line-height:1.4;}
+.sstrip{border-top:1px solid var(--ln);background:var(--k2);padding:40px 50px;}
+.si{max-width:1180px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);}
+.ss{text-align:center;padding:0 14px;border-right:1px solid var(--ld);}.ss:last-child{border-right:none;}
+.ssn{font-family:'Playfair Display',serif;font-size:48px;font-weight:900;color:var(--g);line-height:1;}
+.ssl{font-family:'Space Mono',monospace;font-size:7px;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-top:6px;}
+.qbl{max-width:1180px;margin:0 auto;padding:64px 50px;display:grid;grid-template-columns:150px 1fr;gap:52px;align-items:center;border-top:1px solid var(--ld);}
+.ql{font-family:'Space Mono',monospace;font-size:7px;color:var(--g3);letter-spacing:3px;text-transform:uppercase;}
+.qt{font-family:'Playfair Display',serif;font-size:clamp(16px,2.1vw,27px);font-style:italic;color:var(--w2);line-height:1.4;}.qt em{color:var(--g);}
+
+/* MASTERCLASS */
+.mch{padding:116px 50px 40px;max-width:1180px;margin:0 auto;border-bottom:1px solid var(--ln);margin-bottom:40px;}
+.mco{font-family:'Space Mono',monospace;font-size:8px;color:var(--g3);letter-spacing:4px;text-transform:uppercase;margin-bottom:11px;}
+.mchh{font-family:'Playfair Display',serif;font-size:clamp(36px,4.2vw,60px);font-weight:900;line-height:.92;margin-bottom:13px;}.mchh em{font-style:italic;color:var(--g);}
+.mchs{font-size:13px;color:var(--d2);font-weight:300;max-width:420px;line-height:1.7;}
+.mcf{max-width:1180px;margin:0 auto 36px;padding:0 50px;display:flex;gap:6px;flex-wrap:wrap;}
+.mfb{background:none;border:1px solid var(--k6);padding:5px 13px;font-family:'DM Sans',sans-serif;font-size:8px;font-weight:700;color:var(--dim);letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:all .15s;}
+.mfb:hover{border-color:rgba(201,168,76,.25);color:var(--d2);}.mfb.on{border-color:var(--g);color:var(--g);}
+.mcg{max-width:1180px;margin:0 auto;padding:0 50px 64px;display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--ln);}
+.mcc{background:var(--k2);cursor:pointer;transition:background .15s;}.mcc:hover{background:var(--k3);}
+.mcct{height:160px;position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+.mccn2{position:absolute;bottom:5px;left:9px;font-family:'Playfair Display',serif;font-size:48px;font-weight:900;color:rgba(201,168,76,.05);}
+.mccp{width:36px;height:36px;border:1.5px solid rgba(201,168,76,.3);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--g);z-index:2;transition:all .18s;}
+.mcc:hover .mccp{border-color:var(--g);background:rgba(201,168,76,.07);}
+.mccd{position:absolute;bottom:6px;right:8px;font-family:'Space Mono',monospace;font-size:7px;color:var(--d2);background:rgba(0,0,0,.5);padding:2px 5px;}
+.mccb{padding:17px;}
+.mccch{display:flex;align-items:center;gap:5px;margin-bottom:7px;}
+.mcccf{font-size:10px;}.mcccn{font-family:'Space Mono',monospace;font-size:7px;font-weight:700;color:var(--g3);letter-spacing:1.5px;text-transform:uppercase;}
+.mcct2{font-family:'Playfair Display',serif;font-size:16px;font-weight:700;line-height:1.2;margin-bottom:4px;}
+.mccs{font-size:10px;color:var(--dim);font-weight:300;line-height:1.6;margin-bottom:9px;}
+.mcctags{display:flex;gap:4px;flex-wrap:wrap;}
+.mctag{font-family:'Space Mono',monospace;font-size:6px;color:var(--dim);border:1px solid var(--k6);padding:2px 6px;}
+.mmo{position:fixed;inset:0;z-index:5000;background:rgba(0,0,0,.93);display:none;align-items:center;justify-content:center;padding:24px;}
+.mmo.on{display:flex;}
+.mmb{background:var(--k2);border:1px solid var(--ln);max-width:600px;width:100%;animation:fu .24s ease;}
+@keyframes fu{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.mmhh{display:flex;justify-content:space-between;padding:20px 24px 0;}
+.mmcl{background:none;border:none;color:var(--dim);font-size:16px;cursor:pointer;}.mmcl:hover{color:var(--w);}
+.mmbdy{padding:14px 24px 24px;max-height:80vh;overflow-y:auto;}
+.mmchn{font-family:'Space Mono',monospace;font-size:7px;color:var(--g3);letter-spacing:2px;text-transform:uppercase;margin-bottom:5px;}
+.mmtit{font-family:'Playfair Display',serif;font-size:24px;font-weight:700;margin-bottom:12px;line-height:1.2;}
+.mmq{background:var(--k3);border-left:2px solid var(--g);padding:16px 20px;font-family:'Playfair Display',serif;font-size:14px;font-style:italic;color:var(--d2);line-height:1.8;}
+.mmab{width:100%;background:none;border:1px solid var(--ln);padding:10px 16px;font-family:'DM Sans',sans-serif;font-size:8px;font-weight:700;color:var(--d2);letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all .18s;text-align:left;display:flex;align-items:center;gap:8px;margin-top:11px;}
+.mmab:hover{border-color:rgba(201,168,76,.25);color:var(--g);}
+.mmab::before{content:'✦';color:var(--g);font-size:8px;}
+.mmar{padding:13px 16px;font-size:13px;color:var(--d2);line-height:1.8;font-weight:300;display:none;border-top:1px solid var(--ln);}
+.mmar.on{display:block;}
+
+/* PROFIL */
+.psh{display:grid;grid-template-columns:216px 1fr;min-height:100vh;}
+.pl{background:var(--k2);border-right:1px solid var(--ln);padding:80px 22px 32px;position:sticky;top:0;height:100vh;overflow-y:auto;}
+.plav{width:48px;height:48px;border:1px solid var(--g);display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:17px;font-style:italic;color:var(--g);margin-bottom:10px;}
+.pln{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;margin-bottom:2px;}
+.plr{font-family:'Space Mono',monospace;font-size:7px;color:var(--dim);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:16px;}
+.plst{padding:7px 0;border-bottom:1px solid var(--ld);}
+.plsl{font-family:'Space Mono',monospace;font-size:6px;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:2px;}
+.plsv{font-size:12px;}
+.pr{padding:90px 48px 48px;}
+.prh{font-family:'Playfair Display',serif;font-size:36px;font-weight:900;margin-bottom:4px;}.prh em{font-style:italic;color:var(--g);}
+.prs{font-size:11px;color:var(--dim);margin-bottom:36px;}
+.pfsec{margin-bottom:30px;}
+.pft{font-family:'Space Mono',monospace;font-size:7px;color:var(--g3);letter-spacing:3px;text-transform:uppercase;margin-bottom:13px;padding-bottom:6px;border-bottom:1px solid var(--ln);}
+.pfr{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:13px;}
+.pfr.t3{grid-template-columns:1fr 1fr 1fr;}
+.pf{display:flex;flex-direction:column;gap:5px;}
+.pf label{font-family:'Space Mono',monospace;font-size:6px;color:var(--dim);letter-spacing:2px;text-transform:uppercase;}
+.pf input,.pf select,.pf textarea{background:transparent;border:none;border-bottom:1px solid rgba(255,255,255,.06);padding:7px 0;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:300;color:var(--w);outline:none;transition:border-color .18s;width:100%;}
+.pf input:focus,.pf select:focus,.pf textarea:focus{border-bottom-color:var(--g);}
+.pf input::placeholder,.pf textarea::placeholder{color:var(--k6);}
+.pf textarea{resize:none;height:66px;font-size:12px;}.pf select{cursor:pointer;-webkit-appearance:none;}
+option{background:var(--k3);}
+.pfc{display:flex;gap:5px;flex-wrap:wrap;margin-top:4px;}
+.pc{border:1px solid var(--k6);padding:5px 11px;font-size:8px;font-weight:700;color:var(--dim);letter-spacing:1px;cursor:pointer;transition:all .13s;}
+.pc:hover{border-color:rgba(201,168,76,.2);color:var(--d2);}
+.pc.on{border-color:var(--g);color:var(--g);background:var(--gf);}
+.pfsv{display:inline-flex;align-items:center;gap:8px;background:var(--g);padding:12px 28px;margin-top:4px;font-family:'DM Sans',sans-serif;font-size:8px;font-weight:700;color:var(--k);letter-spacing:2.5px;text-transform:uppercase;cursor:pointer;transition:all .18s;border:none;}
+.pfsv:hover{background:var(--g2);}
+
+/* CHAMPION */
+.cpp{padding:90px 0 64px;}
+.cpi2{max-width:1180px;margin:0 auto;padding:0 50px;}
+.cpo{font-family:'Space Mono',monospace;font-size:8px;color:var(--g3);letter-spacing:4px;text-transform:uppercase;margin-bottom:10px;}
+.cph{font-family:'Playfair Display',serif;font-size:clamp(36px,4.2vw,60px);font-weight:900;line-height:.92;margin-bottom:10px;}.cph em{font-style:italic;color:var(--g);}
+.cphs{font-size:13px;color:var(--d2);font-weight:300;line-height:1.7;max-width:460px;margin-bottom:40px;}
+.scd{background:var(--k2);border:1px solid var(--g);padding:24px 28px;display:none;align-items:center;gap:26px;margin-bottom:34px;position:relative;overflow:hidden;}
+.scd::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 50% 80% at 0% 50%,rgba(201,168,76,.04),transparent 58%);}
+.scd.on{display:flex;}
+.scdf{font-size:36px;flex-shrink:0;}.scdi{flex:1;}
+.scdl{font-family:'Space Mono',monospace;font-size:7px;color:var(--g3);letter-spacing:3px;text-transform:uppercase;margin-bottom:5px;}
+.scdn{font-family:'Playfair Display',serif;font-size:28px;font-weight:900;margin-bottom:3px;}
+.scdm{font-family:'Playfair Display',serif;font-size:11px;font-style:italic;color:var(--d2);}
+.scdg{background:var(--g);padding:10px 24px;flex-shrink:0;font-family:'DM Sans',sans-serif;font-size:8px;font-weight:700;color:var(--k);letter-spacing:2.5px;text-transform:uppercase;cursor:pointer;border:none;transition:all .18s;}
+.scdg:hover{background:var(--g2);}
+.cw{overflow:hidden;margin-bottom:24px;border:1px solid var(--ln);background:var(--ln);}
+.ct{display:flex;transition:transform .42s cubic-bezier(.16,1,.3,1);}
+.ci{flex-shrink:0;width:25%;border-right:1px solid var(--ln);}
+.cc{background:var(--k2);cursor:pointer;transition:background .18s;position:relative;}
+.cc:hover{background:var(--k3);}.cc.sel{background:var(--k3);}
+.ccgl{position:absolute;inset:0;background:radial-gradient(ellipse 45% 28% at 50% 0%,rgba(201,168,76,.065),transparent 55%);opacity:0;transition:opacity .28s;pointer-events:none;}
+.cc.sel .ccgl{opacity:1;}
+.ccv{height:220px;position:relative;overflow:hidden;display:flex;align-items:flex-end;justify-content:center;}
+.ccvn{position:absolute;right:9px;top:9px;font-family:'Playfair Display',serif;font-size:58px;font-weight:900;line-height:1;opacity:.06;}
+.ccvf{position:absolute;top:10px;left:10px;font-size:16px;}
+.ccvsb{position:absolute;bottom:0;left:0;right:0;height:2px;background:var(--g);transform:scaleX(0);transition:transform .28s;}
+.cc.sel .ccvsb{transform:scaleX(1);}
+.ccvfig{width:95px;height:178px;position:relative;z-index:2;}
+.ccb{padding:14px;}
+.ccbn{font-family:'Playfair Display',serif;font-size:16px;font-weight:900;margin-bottom:1px;}
+.ccbp{font-family:'Space Mono',monospace;font-size:7px;color:var(--g3);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;}
+.ccbd{font-size:10px;color:var(--dim);font-weight:300;line-height:1.5;margin-bottom:8px;}
+.ccbt{display:flex;gap:4px;flex-wrap:wrap;}
+.cct{font-family:'Space Mono',monospace;font-size:6px;color:var(--dim);border:1px solid var(--k6);padding:2px 5px;}
+.cna{display:flex;align-items:center;justify-content:space-between;padding:0 1px;}
+.cnarr{display:flex;gap:6px;}
+.ca{background:none;border:1px solid var(--k6);width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--dim);cursor:pointer;transition:all .15s;}
+.ca:hover{border-color:rgba(201,168,76,.28);color:var(--g);}
+.cdots{display:flex;gap:4px;}
+.cdot{width:14px;height:2px;background:var(--k6);transition:background .18s;}
+.cdot.on{background:var(--g);}
+
+/* ANALYSE */
+.ash{display:grid;grid-template-columns:216px 1fr;min-height:100vh;}
+.alf{background:var(--k2);border-right:1px solid var(--ln);padding:80px 0 32px;position:sticky;top:0;height:100vh;overflow-y:auto;}
+.alch{padding:15px 17px;margin-bottom:4px;border-bottom:1px solid var(--ln);}
+.alcl{font-family:'Space Mono',monospace;font-size:7px;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;}
+.alcf{font-size:19px;margin-bottom:3px;}.alcn{font-family:'Playfair Display',serif;font-size:15px;font-weight:700;}
+.alcs{font-family:'Space Mono',monospace;font-size:7px;color:var(--g3);margin-top:1px;}
+.ami{display:flex;align-items:center;gap:9px;padding:8px 17px;font-size:11px;font-weight:500;color:var(--dim);cursor:pointer;transition:all .13s;border-left:2px solid transparent;}
+.ami:hover{color:var(--d2);background:rgba(255,255,255,.01);}
+.ami.on{color:var(--g);border-left-color:var(--g);background:rgba(201,168,76,.05);}
+.ic{width:12px;text-align:center;font-size:10px;}
+.ar{padding:90px 48px 48px;}
+.av{display:none;}.av.on{display:block;}
+
+/* RESULT BOX */
+.rb{border:1px solid var(--ln);background:var(--k2);display:none;}
+.rb.on{display:block;animation:fu .24s ease;}
+.rbh{display:flex;align-items:center;justify-content:space-between;padding:10px 17px;border-bottom:1px solid var(--ln);}
+.rbt{display:flex;align-items:center;gap:6px;font-family:'Space Mono',monospace;font-size:8px;color:var(--g);letter-spacing:3px;text-transform:uppercase;}
+.rbt::before{content:'';width:5px;height:5px;background:var(--g);border-radius:50%;animation:gl 2s infinite;}
+@keyframes gl{0%,100%{opacity:1}50%{opacity:.3;box-shadow:0 0 7px var(--g);}}
+.rbts{font-family:'Space Mono',monospace;font-size:7px;color:var(--dim);}
+.rbb{padding:20px;font-size:13px;color:var(--d2);line-height:1.9;font-weight:300;}
+.rbb strong{color:var(--g2);font-weight:600;}
+
+/* DOTS LOADER */
+.dts{display:flex;align-items:center;gap:5px;padding:11px 0;}
+.dts span{width:5px;height:5px;background:var(--g);border-radius:50%;opacity:.2;animation:dp 1.4s infinite;}
+.dts span:nth-child(2){animation-delay:.2s;}.dts span:nth-child(3){animation-delay:.4s;}
+.dtx{font-size:10px;color:var(--dim);margin-left:5px;font-style:italic;}
+@keyframes dp{0%,80%,100%{transform:scale(.8);opacity:.2}40%{transform:scale(1.2);opacity:1}}
+
+/* WARNING */
+.vwrn{border:1px solid rgba(184,48,48,.25);background:rgba(184,48,48,.03);padding:11px 15px;display:none;gap:9px;align-items:flex-start;margin-bottom:13px;}
+.vwrn.on{display:flex;}
+.vwi{font-size:13px;flex-shrink:0;}.vwt{font-size:11px;color:var(--d2);line-height:1.6;}.vwt strong{color:var(--r);}
+
+/* UPLOAD ZONE */
+.upz{border:2px dashed var(--k5);background:var(--k2);padding:38px 28px;text-align:center;cursor:pointer;transition:all .18s;margin-bottom:13px;position:relative;}
+.upz:hover,.upz.drag{border-color:rgba(201,168,76,.4);background:var(--k3);}
+.upz.drag{border-color:var(--g);}
+.uzi{font-size:28px;opacity:.3;margin-bottom:9px;}
+.uzt{font-family:'Playfair Display',serif;font-size:17px;font-weight:700;font-style:italic;margin-bottom:5px;}
+.uzs{font-size:10px;color:var(--dim);margin-bottom:11px;line-height:1.6;}
+.uzn{font-size:8px;color:var(--g3);background:rgba(201,168,76,.04);border:1px solid rgba(201,168,76,.08);padding:4px 10px;display:inline-flex;align-items:center;gap:4px;}
+.uzfm{display:flex;gap:4px;justify-content:center;margin-top:9px;}
+.uzf{font-family:'Space Mono',monospace;font-size:7px;color:var(--dim);border:1px solid var(--k6);padding:2px 6px;}
+.fprev{display:none;border:1px solid var(--ln);margin-bottom:11px;}.fprev.on{display:block;}
+#fc{width:100%;height:130px;object-fit:cover;display:block;}
+.fplbl{padding:6px 10px;font-family:'Space Mono',monospace;font-size:7px;color:var(--dim);border-top:1px solid var(--ln);background:var(--k3);display:flex;align-items:center;justify-content:space-between;}
+.fremove{background:none;border:none;color:var(--dim);cursor:pointer;font-size:10px;padding:0 4px;}
+.fremove:hover{color:var(--r);}
+.dvl{display:flex;align-items:center;gap:10px;margin:13px 0;color:var(--dim);font-family:'Space Mono',monospace;font-size:7px;letter-spacing:2px;text-transform:uppercase;}
+.dvl::before,.dvl::after{content:'';flex:1;height:1px;background:var(--ln);}
+.ad{width:100%;background:var(--k2);border:1px solid var(--k5);padding:11px 13px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:300;color:var(--w);resize:none;height:88px;outline:none;transition:border-color .18s;display:block;margin-bottom:10px;}
+.ad:focus{border-color:rgba(201,168,76,.22);}.ad::placeholder{color:var(--dim);}
+.actr{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;gap:10px;}
+.ach{font-size:10px;color:var(--dim);font-style:italic;font-weight:300;}
+
+/* BIOMETRICS */
+.bsec{font-family:'Space Mono',monospace;font-size:7px;color:var(--g3);letter-spacing:3px;text-transform:uppercase;margin:20px 0 12px;padding-bottom:6px;border-bottom:1px solid var(--ln);}
+.bio-g{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--ln);border:1px solid var(--ln);margin-bottom:17px;}
+.bio-c{background:var(--k2);padding:14px 12px;}
+.bio-c label{font-family:'Space Mono',monospace;display:block;font-size:6px;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;}
+.bio-inp,.bio-sel{width:100%;background:transparent;border:none;border-bottom:1px solid rgba(255,255,255,.055);padding:5px 0;font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--w);outline:none;transition:border-color .18s;}
+.bio-inp:focus,.bio-sel:focus{border-bottom-color:var(--g);}
+.bio-inp::placeholder{color:var(--k6);}
+.sg{display:grid;grid-template-columns:repeat(6,1fr);gap:1px;background:var(--ln);border:1px solid var(--ln);margin-bottom:17px;}
+.sc{background:var(--k2);padding:16px 9px;text-align:center;}
+.sclbl{font-family:'Space Mono',monospace;font-size:6px;color:var(--dim);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;}
+.scr{width:56px;height:56px;margin:0 auto 6px;position:relative;}
+.scr svg{width:56px;height:56px;}
+.bgc{fill:none;stroke:var(--k5);stroke-width:4;}
+.fgc{fill:none;stroke-width:4;stroke-linecap:round;transition:stroke-dashoffset .9s ease;}
+.scnum{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:16px;font-weight:900;}
+.scsub{font-size:7px;}
+.simb{border:1px solid var(--ln);background:var(--k2);padding:22px;margin-bottom:17px;}
+.simtop{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+.simscorebig{font-family:'Playfair Display',serif;font-size:52px;font-weight:900;color:var(--g);line-height:1;}
+.simbars{display:flex;flex-direction:column;gap:10px;}
+.radar-wrap{background:var(--k2);border:1px solid var(--ln);padding:24px;margin-bottom:17px;display:flex;align-items:flex-start;gap:28px;}
+.radar-svg{flex-shrink:0;}
+.radar-leg{flex:1;}
+.radar-item{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.cmpt{width:100%;border-collapse:collapse;margin-bottom:17px;}
+.cmpt th{font-family:'Space Mono',monospace;font-size:6px;color:var(--dim);letter-spacing:2px;text-transform:uppercase;padding:7px 10px;text-align:left;border-bottom:1px solid var(--ln);background:var(--k3);}
+.cmpt td{padding:9px 10px;border-bottom:1px solid var(--ld);font-size:11px;color:var(--d2);font-weight:300;}
+.cmpt td:first-child{font-family:'Space Mono',monospace;font-size:7px;color:var(--dim);letter-spacing:.8px;text-transform:uppercase;}
+.vg{color:#5DB87A!important;font-weight:600!important;}.vr{color:var(--r)!important;}
+
+/* TRAINING */
+.twk{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;background:var(--ln);border:1px solid var(--ln);margin-bottom:20px;}
+.twc{background:var(--k2);padding:14px 7px;text-align:center;}
+.twc.today{background:var(--k3);position:relative;}.twc.today::after{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:var(--g);}
+.twc.rest{opacity:.25;}
+.twd{font-family:'Space Mono',monospace;font-size:6px;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;}
+.twico{font-size:13px;margin-bottom:3px;}.twtp{font-size:7px;color:var(--d2);font-weight:600;}
+.tpg{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--ln);border:1px solid var(--ln);}
+.tpc{background:var(--k2);padding:20px;}
+.tph{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:13px;}
+.tptt{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:1px;}
+.tpm{font-size:8px;color:var(--dim);font-weight:300;}.tpi{font-size:14px;opacity:.4;}
+.tpl{list-style:none;}.tpl li{font-size:10px;color:var(--dim);padding:5px 0;border-bottom:1px solid var(--ld);font-weight:300;}
+.tpl li:last-child{border-bottom:none;}
+
+@media(max-width:900px){
+  .hero{grid-template-columns:1fr;}.cprev{display:none;}
+  .mcg{grid-template-columns:1fr 1fr;}.psh,.ash{grid-template-columns:1fr;}
+  .pl,.alf{position:relative;height:auto;padding-top:80px;}
+  .ci{width:50%;}.bio-g{grid-template-columns:1fr 1fr;}.sg{grid-template-columns:repeat(3,1fr);}
+  .radar-wrap{flex-direction:column;}
+}
+</style>
+</head>
+<body>
+
+<div id="lb">
+  <button class="lb on" onclick="sL('fr')">FR</button><span class="ls">·</span>
+  <button class="lb" onclick="sL('en')">EN</button><span class="ls">·</span>
+  <button class="lb" onclick="sL('es')">ES</button><span class="ls">·</span>
+  <button class="lb" onclick="sL('pt')">PT</button><span class="ls">·</span>
+  <button class="lb" onclick="sL('ar')">AR</button>
+</div>
+<div id="tst"></div>
+
+<nav>
+  <span class="nb">Special One</span>
+  <div class="nts">
+    <button class="nt on" onclick="gP('home')">Accueil</button>
+    <button class="nt" onclick="gP('mc')">Champions</button>
+    <button class="nt" onclick="gP('profil')">Mon Profil</button>
+    <button class="nt" onclick="gP('champ')">Mon Champion</button>
+    <button class="nt" onclick="gP('analyse')">Analyse IA</button>
+  </div>
+  <div class="nr" onclick="gP('champ')">
+    <div class="nca" id="nca">?</div>
+    <span class="ncn" id="ncn">Choisir</span>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════════ HOME ═══════════════════════════════ -->
+<div class="pg on" id="phome">
+  <div class="hbg"></div><div class="hgl"></div>
+  <div class="hero">
+    <div>
+      <div class="heb">Football Intelligence Platform</div>
+      <h1 class="hh"><span>Progresse</span><em>grâce aux conseils</em><span>de tes champions</span></h1>
+      <p class="hs">L'IA adopte la philosophie et la méthode de ton champion — et te coache comme si c'était lui.</p>
+      <div class="hca">
+        <button class="bg" onclick="gP('mc')">Découvrir les champions</button>
+        <button class="bo" onclick="gP('profil')">Créer mon profil</button>
+      </div>
+    </div>
+    <div><div class="cprev" id="hprev"></div></div>
+  </div>
+  <div class="sstrip"><div class="si">
+    <div class="ss"><div class="ssn">28</div><div class="ssl">Champions</div></div>
+    <div class="ss"><div class="ssn">30</div><div class="ssl">Leçons</div></div>
+    <div class="ss"><div class="ssn">5</div><div class="ssl">Langues</div></div>
+    <div class="ss"><div class="ssn">IA</div><div class="ssl">Analyse honnête</div></div>
+  </div></div>
+  <div class="qbl">
+    <div class="ql">Philosophie</div>
+    <div class="qt">Chaque champion a forgé sa grandeur à travers une philosophie unique. Special One <em>encode cette philosophie</em> et te coache comme si ton champion t'entraînait directement.</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ MASTERCLASS ═══════════════════════════════ -->
+<div class="pg" id="pmc">
+  <div class="mch">
+    <div class="mco">Leçons des Champions</div>
+    <h2 class="mchh"><em>Apprends</em> de ceux<br>qui ont tout gagné</h2>
+    <p class="mchs">Philosophie, méthodes et mentalité. Chaque leçon personnalisée à ton profil par l'IA.</p>
+  </div>
+  <div class="mcf">
+    <button class="mfb on" onclick="mcF('all',this)">Tout</button>
+    <button class="mfb" onclick="mcF('technique',this)">Technique</button>
+    <button class="mfb" onclick="mcF('mental',this)">Mental</button>
+    <button class="mfb" onclick="mcF('physique',this)">Physique</button>
+    <button class="mfb" onclick="mcF('tactique',this)">Tactique</button>
+    <button class="mfb" onclick="mcF('attaquant',this)">Attaquants</button>
+    <button class="mfb" onclick="mcF('milieu',this)">Milieux</button>
+    <button class="mfb" onclick="mcF('defenseur',this)">Défenseurs</button>
+    <button class="mfb" onclick="mcF('gardien',this)">Gardiens</button>
+  </div>
+  <div class="mcg" id="mcg"></div>
+</div>
+
+<div class="mmo" id="mmo" onclick="if(event.target===this)cMM()">
+  <div class="mmb">
+    <div class="mmhh"><div></div><button class="mmcl" onclick="cMM()">✕</button></div>
+    <div class="mmbdy">
+      <div class="mmchn" id="mmcn"></div>
+      <div class="mmtit" id="mmt"></div>
+      <div class="mmq" id="mmq"></div>
+      <button class="mmab" onclick="applyL()">Appliquer à mon profil</button>
+      <div class="mmar" id="mmar"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ PROFIL ═══════════════════════════════ -->
+<div class="pg" id="pprofil">
+  <div class="psh">
+    <div class="pl">
+      <div class="plav" id="plav">—</div>
+      <div class="pln" id="pln">Votre profil</div>
+      <div class="plr" id="plr">—</div>
+      <div class="plst"><div class="plsl">Niveau</div><div class="plsv" id="pllvl">—</div></div>
+      <div class="plst"><div class="plsl">Club</div><div class="plsv" id="plclub">—</div></div>
+      <div class="plst"><div class="plsl">Pied fort</div><div class="plsv" id="plpied">—</div></div>
+      <div class="plst"><div class="plsl">Entraînements</div><div class="plsv" id="pltrain">—</div></div>
+      <div class="plst"><div class="plsl">Jour match</div><div class="plsv" id="plmatch">—</div></div>
+    </div>
+    <div class="pr">
+      <div class="prh"><em>Mon</em> Profil</div>
+      <div class="prs">L'IA utilise ces données pour personnaliser chaque analyse.</div>
+      <div class="pfsec"><div class="pft">Identité</div>
+        <div class="pfr t3">
+          <div class="pf"><label>Prénom</label><input id="ppr" type="text" placeholder="—"></div>
+          <div class="pf"><label>Nom</label><input id="pnom" type="text" placeholder="—"></div>
+          <div class="pf"><label>Âge</label><input id="page" type="number" placeholder="—"></div>
+        </div>
+        <div class="pfr t3">
+          <div class="pf"><label>Taille (cm)</label><input id="ph2" type="number" placeholder="—"></div>
+          <div class="pf"><label>Poids (kg)</label><input id="pw" type="number" placeholder="—"></div>
+          <div class="pf"><label>Nationalité</label><input id="pnat" type="text" placeholder="—"></div>
+        </div>
+      </div>
+      <div class="pfsec"><div class="pft">Football</div>
+        <div class="pfr">
+          <div class="pf"><label>Poste</label>
+            <select id="ppos"><option value="">—</option><option>Gardien</option><option>Défenseur Central</option><option>Latéral</option><option>Milieu Défensif</option><option>Milieu Central</option><option>Milieu Offensif</option><option>Ailier</option><option>Attaquant</option></select>
+          </div>
+          <div class="pf"><label>Pied fort</label>
+            <div class="pfc" id="chp"><div class="pc" onclick="sC(this,'pied')">Droit</div><div class="pc" onclick="sC(this,'pied')">Gauche</div><div class="pc" onclick="sC(this,'pied')">Les deux</div></div>
+          </div>
+        </div>
+        <div class="pfr">
+          <div class="pf"><label>Niveau</label>
+            <select id="plvl2"><option value="">—</option><option>Loisir</option><option>Amateur (district)</option><option>Régional / DH</option><option>Semi-professionnel</option><option>Professionnel</option></select>
+          </div>
+          <div class="pf"><label>Club actuel</label><input id="pclub2" type="text" placeholder="—"></div>
+        </div>
+        <div class="pfr">
+          <div class="pf"><label>Jours entraînement</label>
+            <div class="pfc" id="cht"><div class="pc" onclick="mC(this)">Lun</div><div class="pc" onclick="mC(this)">Mar</div><div class="pc" onclick="mC(this)">Mer</div><div class="pc" onclick="mC(this)">Jeu</div><div class="pc" onclick="mC(this)">Ven</div><div class="pc" onclick="mC(this)">Sam</div><div class="pc" onclick="mC(this)">Dim</div></div>
+          </div>
+          <div class="pf"><label>Jour de match</label>
+            <div class="pfc" id="chm"><div class="pc" onclick="sC(this,'match')">Lun</div><div class="pc" onclick="sC(this,'match')">Mar</div><div class="pc" onclick="sC(this,'match')">Mer</div><div class="pc" onclick="sC(this,'match')">Jeu</div><div class="pc" onclick="sC(this,'match')">Ven</div><div class="pc" onclick="sC(this,'match')">Sam</div><div class="pc" onclick="sC(this,'match')">Dim</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="pfsec"><div class="pft">Forces & Faiblesses</div>
+        <div class="pfr">
+          <div class="pf"><label>Points forts</label><textarea id="pforts" placeholder="Vitesse, dribble, pressing…"></textarea></div>
+          <div class="pf"><label>Points faibles</label><textarea id="pfaibles" placeholder="Pied gauche, jeu de tête, relance…"></textarea></div>
+        </div>
+      </div>
+      <div class="pfsec"><div class="pft">Objectifs</div>
+        <div class="pfr">
+          <div class="pf"><label>Court terme (3-6 mois)</label><textarea id="pct" placeholder="Marquer 10 buts…"></textarea></div>
+          <div class="pf"><label>Long terme (1-3 ans)</label><textarea id="plt" placeholder="Passer pro…"></textarea></div>
+        </div>
+      </div>
+      <button class="pfsv" onclick="saveP()">Sauvegarder →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ CHAMPION ═══════════════════════════════ -->
+<div class="pg" id="pchamp">
+  <div class="cpp"><div class="cpi2">
+    <div class="cpo">Choisir son mentor</div>
+    <h2 class="cph"><em>28 champions.</em> Un seul te forgera.</h2>
+    <p class="cphs">L'IA adopte entièrement la philosophie du champion choisi.</p>
+    <div class="scd" id="scd">
+      <div class="scdf" id="scdf"></div>
+      <div class="scdi">
+        <div class="scdl">Votre champion</div>
+        <div class="scdn" id="scdn"></div>
+        <div class="scdm" id="scdm"></div>
+      </div>
+      <button class="scdg" onclick="gP('analyse')">Commencer →</button>
+    </div>
+    <div class="cw"><div class="ct" id="crt"></div></div>
+    <div class="cna">
+      <div class="cnarr">
+        <button class="ca" onclick="cPrev()">←</button>
+        <button class="ca" onclick="cNext()">→</button>
+      </div>
+      <div class="cdots" id="cnd"></div>
+    </div>
+  </div></div>
+</div>
+
+<!-- ═══════════════════════════════ ANALYSE ═══════════════════════════════ -->
+<div class="pg" id="panalyse">
+  <div class="ash">
+    <div class="alf">
+      <div class="alch">
+        <div class="alcl">Votre champion</div>
+        <div class="alcf" id="alf2">?</div>
+        <div class="alcn" id="aln">Aucun sélectionné</div>
+        <div class="alcs" id="als">—</div>
+      </div>
+      <div class="ami on" onclick="aN('video')"><span class="ic">▶</span> Analyse Vidéo / Texte</div>
+      <div class="ami" onclick="aN('bio')"><span class="ic">◉</span> Biométrie & Scores</div>
+      <div class="ami" onclick="aN('train')"><span class="ic">◎</span> Plan Training</div>
+    </div>
+    <div class="ar">
+
+      <!-- ── VIDEO ── -->
+      <div class="av on" id="av-video">
+        <div style="font-family:'Space Mono',monospace;font-size:7px;color:var(--g3);letter-spacing:4px;text-transform:uppercase;margin-bottom:9px;">Intelligence Artificielle</div>
+        <h2 style="font-family:'Playfair Display',serif;font-size:32px;font-weight:900;margin-bottom:4px;"><em>Analyse Vidéo</em></h2>
+        <p style="font-size:12px;color:var(--dim);margin-bottom:17px;font-weight:300;">Uploade une vidéo ou décris ta situation. L'IA analyse dans la philosophie de ton champion.</p>
+
+        <div class="vwrn" id="vwrn">
+          <div class="vwi">⚠</div>
+          <div class="vwt"><strong>Hors sujet détecté.</strong> Décris une situation de football : match, entraînement, geste technique, tactique...</div>
+        </div>
+
+        <!-- UPLOAD ZONE -->
+        <div class="upz" id="upz">
+          <div class="uzi">▶</div>
+          <div class="uzt">Déposer une vidéo ou image</div>
+          <div class="uzs">Glisse-dépose ici · ou clique pour parcourir<br>Match · Entraînement · Gestes techniques</div>
+          <div class="uzn">✦ Analyse dans le style de ton champion</div>
+          <div class="uzfm"><span class="uzf">MP4</span><span class="uzf">MOV</span><span class="uzf">AVI</span><span class="uzf">JPG</span><span class="uzf">PNG</span></div>
+        </div>
+        <input type="file" id="af" accept="video/*,image/*" style="display:none" onchange="onFile(event)">
+
+        <div class="fprev" id="fprev">
+          <canvas id="fc"></canvas>
+          <div class="fplbl">
+            <span id="fplbl">Frame extraite</span>
+            <button class="fremove" onclick="clearFile()">✕ Supprimer</button>
+          </div>
+        </div>
+
+        <div class="dvl">ou décris ta situation</div>
+        <textarea class="ad" id="adesc" placeholder="Ex: Ce soir en match j'ai raté 3 occasions face au gardien. Je prends mal la profondeur. Mon entraîneur dit que je reviens trop dans les pieds..."></textarea>
+        <div class="actr">
+          <span class="ach">Plus tu décris avec précision, plus l'analyse sera utile.</span>
+          <button class="bg" onclick="doVideo()">Analyser →</button>
+        </div>
+        <div class="rb" id="vres">
+          <div class="rbh">
+            <div class="rbt" id="vrbt">Special One AI</div>
+            <div class="rbts" id="vrts"></div>
+          </div>
+          <div class="rbb" id="vrbb"></div>
+        </div>
+      </div>
+
+      <!-- ── BIO ── -->
+      <div class="av h" id="av-bio">
+        <div style="font-family:'Space Mono',monospace;font-size:7px;color:var(--g3);letter-spacing:4px;text-transform:uppercase;margin-bottom:9px;">Biométrie Avancée</div>
+        <h2 style="font-family:'Playfair Display',serif;font-size:32px;font-weight:900;margin-bottom:4px;"><em>Profil Athlétique</em></h2>
+        <p style="font-size:12px;color:var(--dim);margin-bottom:17px;font-weight:300;">Scores automatiques · Ressemblance avec ton champion · Radar comparatif.</p>
+
+        <div class="bsec">① Données physiques & athlétiques</div>
+        <div class="bio-g">
+          <div class="bio-c"><label>Âge</label><input class="bio-inp" id="bage" type="number" placeholder="—" oninput="recalc()"></div>
+          <div class="bio-c"><label>Taille (cm)</label><input class="bio-inp" id="bh" type="number" placeholder="—" oninput="recalc()"></div>
+          <div class="bio-c"><label>Poids (kg)</label><input class="bio-inp" id="bw" type="number" placeholder="—" oninput="recalc()"></div>
+          <div class="bio-c"><label>Poste</label>
+            <select class="bio-sel" id="bpos" onchange="recalc()">
+              <option>Attaquant</option><option>Ailier</option><option>Milieu Offensif</option>
+              <option>Milieu Central</option><option>Milieu Défensif</option><option>Latéral</option>
+              <option>Défenseur Central</option><option>Gardien</option>
+            </select>
+          </div>
+          <div class="bio-c"><label>Sprint 30m (sec)</label><input class="bio-inp" id="bspr" type="number" step="0.1" placeholder="—" oninput="recalc()"></div>
+          <div class="bio-c"><label>Détente (cm)</label><input class="bio-inp" id="bdet" type="number" placeholder="—" oninput="recalc()"></div>
+          <div class="bio-c"><label>Distance match (km)</label><input class="bio-inp" id="bdist" type="number" step="0.5" placeholder="—" oninput="recalc()"></div>
+          <div class="bio-c"><label>VO2max</label><input class="bio-inp" id="bvo2" type="number" placeholder="—" oninput="recalc()"></div>
+          <div class="bio-c"><label>FC repos (bpm)</label><input class="bio-inp" id="bhr" type="number" placeholder="—" oninput="recalc()"></div>
+          <div class="bio-c"><label>Récup FC 1min (↓bpm)</label><input class="bio-inp" id="bhrr" type="number" placeholder="—" oninput="recalc()"></div>
+          <div class="bio-c"><label>Passes réussies %</label><input class="bio-inp" id="bpacc" type="number" placeholder="—" oninput="recalc()"></div>
+          <div class="bio-c"><label>Duels gagnés %</label><input class="bio-inp" id="bduel" type="number" placeholder="—" oninput="recalc()"></div>
+          <div class="bio-c"><label>Niveau jeu</label>
+            <select class="bio-sel" id="blvl" onchange="recalc()">
+              <option>Loisir</option><option>Amateur</option><option>Régional</option><option>Semi-pro</option><option>Professionnel</option>
+            </select>
+          </div>
+          <div class="bio-c"><label>Expérience (ans)</label><input class="bio-inp" id="bexp" type="number" placeholder="—" oninput="recalc()"></div>
+          <div class="bio-c"><label>Sprints/match</label><input class="bio-inp" id="bsprm" type="number" placeholder="—" oninput="recalc()"></div>
+          <div class="bio-c"><label>Touches/match</label><input class="bio-inp" id="btouch" type="number" placeholder="—" oninput="recalc()"></div>
+        </div>
+
+        <div class="bsec">② Scores automatiques (sur 100)</div>
+        <div class="sg" id="sgrid"></div>
+
+        <div class="bsec">③ Ressemblance avec ton champion</div>
+        <div class="simb">
+          <div class="simtop">
+            <div>
+              <div style="font-family:'Space Mono',monospace;font-size:7px;color:var(--g3);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;">Champion sélectionné</div>
+              <div style="font-family:'Playfair Display',serif;font-size:18px;font-weight:700;" id="simcn">Sélectionnez un champion</div>
+              <div style="font-size:10px;color:var(--dim);margin-top:4px;line-height:1.6;max-width:320px;" id="simcomment"></div>
+              <div style="margin-top:12px;" id="simstars"></div>
+            </div>
+            <div style="text-align:right;">
+              <div class="simscorebig" id="simscore">—</div>
+              <div style="font-size:10px;color:var(--dim)">% de ressemblance</div>
+              <div style="font-family:'Space Mono',monospace;font-size:8px;color:var(--dim);margin-top:4px;" id="simgrade"></div>
+            </div>
+          </div>
+          <div class="simbars" id="simbars"></div>
+          <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--ln);" id="simtips"></div>
+        </div>
+
+        <div class="bsec">④ Radar — Toi vs Champion</div>
+        <div class="radar-wrap">
+          <svg class="radar-svg" id="radarsvg" width="240" height="240" viewBox="0 0 240 240"></svg>
+          <div class="radar-leg">
+            <div style="font-family:'Playfair Display',serif;font-size:15px;font-weight:700;margin-bottom:4px;" id="radar-title">Comparaison profil</div>
+            <div style="font-size:9px;color:var(--dim);margin-bottom:12px;font-weight:300;" id="radar-sub"></div>
+            <div id="radar-legend"></div>
+          </div>
+        </div>
+
+        <div class="bsec">⑤ Comparaison vs Standards Pro</div>
+        <table class="cmpt"><thead><tr><th>Métrique</th><th>Ton résultat</th><th>Standard Pro</th><th>Écart</th><th>Verdict</th></tr></thead><tbody id="cmptb"></tbody></table>
+
+        <div style="display:flex;justify-content:flex-end;margin-bottom:16px;"><button class="bg" onclick="doBio()">Analyse IA complète →</button></div>
+        <div class="rb" id="bres">
+          <div class="rbh"><div class="rbt">Biometric AI</div><div class="rbts" id="brets"></div></div>
+          <div class="rbb" id="brbb"></div>
+        </div>
+      </div>
+
+      <!-- ── TRAINING ── -->
+      <div class="av h" id="av-train">
+        <div style="font-family:'Space Mono',monospace;font-size:7px;color:var(--g3);letter-spacing:4px;text-transform:uppercase;margin-bottom:9px;">Programme</div>
+        <h2 style="font-family:'Playfair Display',serif;font-size:32px;font-weight:900;margin-bottom:4px;"><em>Plan Training</em></h2>
+        <p style="font-size:12px;color:var(--dim);margin-bottom:17px;font-weight:300;">Adapté à votre champion, votre poste et vos jours disponibles.</p>
+        <div class="twk" id="twk"></div>
+        <div class="tpg" id="tpg"></div>
+        <div style="display:flex;justify-content:flex-end;margin:11px 0 16px;"><button class="bg" onclick="doTrain()">Regénérer avec IA →</button></div>
+        <div class="rb" id="tres"><div class="rbh"><div class="rbt">Training AI</div></div><div class="rbb" id="trbb"></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════
+let P={}, C=null, lang='fr', curL=null, carP=0;
+let capturedImageB64 = null; // stores base64 of captured frame/image for AI
+
+try{P=JSON.parse(localStorage.getItem('so_p')||'{}');}catch(e){}
+try{C=JSON.parse(localStorage.getItem('so_c')||'null');}catch(e){}
+try{lang=localStorage.getItem('so_lang')||'fr';}catch(e){}
+
+// ═══════════════════════════════════════════════════════
+// API
+// ═══════════════════════════════════════════════════════
+async function callAI(messages, maxT=1000) {
+  try {
+    const r = await fetch('/api/chat', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        model: 'claude-opus-4-5',
+        max_tokens: maxT,
+        messages
+      })
+    });
+    if (r.ok) {
+      const d = await r.json();
+      if (d.text) return d.text;
+      if (d.error) return '❌ ' + (d.error.message || d.error);
+    }
+    const err = await r.json().catch(()=>({}));
+    return '❌ Erreur serveur: ' + (err.error || r.status);
+  } catch(e) {
+    return '❌ ' + e.message;
+  }
+}
+
+function tst(m){const t=document.getElementById('tst');t.textContent=m;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),2800);}
+function fmt(s){return(s||'').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\*(.*?)\*/g,'<em>$1</em>').replace(/\n/g,'<br>');}
+function lk(){return{'fr':'français','en':'anglais','es':'espagnol','pt':'portugais','ar':'arabe'}[lang]||'français';}
+function profStr(){return`Prénom:${P.prenom||'?'}|Âge:${P.age||'?'}|Taille:${P.taille||'?'}cm|Poids:${P.poids||'?'}kg|Poste:${P.poste||'?'}|Niveau:${P.niveau||'?'}|Club:${P.club||'?'}|Pied:${P.pied||'?'}|Entraînements:${(P.train||[]).join(',')}|Match:${P.match||'?'}|Forts:${P.forts||'?'}|Faibles:${P.faibles||'?'}|ObjectifCT:${P.oct||'?'}|ObjectifLT:${P.olt||'?'}`;}
+
+// ═══════════════════════════════════════════════════════
+// LANG
+// ═══════════════════════════════════════════════════════
+function sL(l){lang=l;localStorage.setItem('so_lang',l);document.querySelectorAll('.lb').forEach(b=>{b.classList.remove('on');if(b.textContent.trim().toLowerCase()===l)b.classList.add('on');});document.body.style.direction=l==='ar'?'rtl':'ltr';}
+
+// ═══════════════════════════════════════════════════════
+// NAV
+// ═══════════════════════════════════════════════════════
+function gP(id){
+  document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.nt').forEach(b=>b.classList.remove('on'));
+  const pg=document.getElementById('p'+id);if(!pg)return;
+  pg.classList.add('on');
+  const m={home:0,mc:1,profil:2,champ:3,analyse:4};
+  const tabs=document.querySelectorAll('.nt');
+  if(m[id]!==undefined&&tabs[m[id]])tabs[m[id]].classList.add('on');
+  window.scrollTo(0,0);
+  if(id==='mc')buildMC('all');
+  if(id==='champ')buildCar();
+  if(id==='profil')fillP();
+  if(id==='analyse'){syncA();aN('video');}
+}
+function aN(id){
+  document.querySelectorAll('.av').forEach(v=>{v.classList.remove('on');v.classList.add('h');});
+  document.querySelectorAll('.ami').forEach(i=>i.classList.remove('on'));
+  const el=document.getElementById('av-'+id);if(!el)return;
+  el.classList.remove('h');el.classList.add('on');
+  const m={video:0,bio:1,train:2};
+  const its=document.querySelectorAll('.ami');
+  if(m[id]!==undefined&&its[m[id]])its[m[id]].classList.add('on');
+  if(id==='bio'){syncBio();buildScores();}
+  if(id==='train')buildTW();
+}
+
+// ═══════════════════════════════════════════════════════
+// 28 CHAMPIONS
+// ═══════════════════════════════════════════════════════
+const CH=[
+  {id:'mbappe',name:'Kylian Mbappé',flag:'🇫🇷',pos:'ATT · Real Madrid',num:'7',c:['#001B5E','#000C2E'],desc:'Explosivité maximale, dribble vertical, finition froide, pressing constant.',motto:"La vitesse est une décision avant d'être un physique.",traits:['Vitesse','Dribble','Finition','1v1'],attrs:{vitesse:97,technique:91,physique:89,mental:88,vision:80,defense:55,endurance:86,puissance:88}},
+  {id:'messi',name:'Lionel Messi',flag:'🇦🇷',pos:'ATT · Inter Miami',num:'10',c:['#75AADB','#CC0001'],desc:'Le plus grand de tous les temps. Dribble, vision, génie pur.',motto:"Je ne regarde jamais où je vais. Je sais toujours où est le ballon.",traits:['Dribble','Vision','Passes','Génie'],attrs:{vitesse:82,technique:99,physique:72,mental:97,vision:99,defense:42,endurance:82,puissance:74}},
+  {id:'ronaldo',name:'Cristiano Ronaldo',flag:'🇵🇹',pos:'ATT · Al Nassr',num:'7',c:['#006600','#FF0000'],desc:'Physique parfait, finition pure, mentalité de champion absolu.',motto:'Le talent ne suffit pas. Le travail fait la différence.',traits:['Frappe','Physique','Mentalité','Buts'],attrs:{vitesse:88,technique:90,physique:97,mental:99,vision:78,defense:50,endurance:92,puissance:97}},
+  {id:'salah',name:'Mohamed Salah',flag:'🇪🇬',pos:'AIL · Liverpool',num:'11',c:['#C8102E','#F6EB61'],desc:'Explosivité à gauche, finition précise, régularité absolue.',motto:'La constance est plus rare que le talent.',traits:['Vitesse','Finition','Régularité','Pressing'],attrs:{vitesse:93,technique:89,physique:82,mental:92,vision:82,defense:65,endurance:89,puissance:80}},
+  {id:'vinicius',name:'Vinícius Jr.',flag:'🇧🇷',pos:'AIL · Real Madrid',num:'7',c:['#001B5E','#E8D25E'],desc:'Dribble explosif, vitesse verticale, finition clinique.',motto:"Je joue avec joie. La joie c'est ma force.",traits:['Dribble','Vitesse','1v1','Finition'],attrs:{vitesse:97,technique:91,physique:80,mental:85,vision:78,defense:50,endurance:85,puissance:80}},
+  {id:'yamal',name:'Lamine Yamal',flag:'🇪🇸',pos:'AIL · FC Barcelone',num:'19',c:['#A00040','#003A80'],desc:"La nouvelle star du Barça. Dribble, vision, sang-froid à 17 ans.",motto:"L'âge n'est qu'un chiffre quand tu as le talent.",traits:['Dribble','Vision','Sang-froid','Technique'],attrs:{vitesse:88,technique:93,physique:68,mental:88,vision:90,defense:45,endurance:80,puissance:70}},
+  {id:'haaland',name:'Erling Haaland',flag:'🇳🇴',pos:'ATT · Man City',num:'9',c:['#5AACDD','#0A2050'],desc:'Machine à buts, gabarit, vitesse, placement instinctif.',motto:"Je suis né pour marquer des buts. Chaque minute est une chance.",traits:['Finition','Physique','Placement','Vitesse'],attrs:{vitesse:92,technique:82,physique:96,mental:88,vision:72,defense:40,endurance:85,puissance:97}},
+  {id:'bellingham',name:'Jude Bellingham',flag:'🏴󠁧󠁢󠁥󠁮󠁧󠁿',pos:'MIL · Real Madrid',num:'5',c:['#001B5E','#E8D25E'],desc:'Box-to-box complet, buts, leadership, physique, vision.',motto:"Le leadership c'est être le premier à l'effort.",traits:['Leadership','Buts','Physique','Vision'],attrs:{vitesse:85,technique:88,physique:90,mental:95,vision:86,defense:82,endurance:90,puissance:88}},
+  {id:'pedri',name:'Pedri',flag:'🇪🇸',pos:'MIL · FC Barcelone',num:'8',c:['#A00040','#003A80'],desc:"Contrôle orienté parfait, vision, récupération. L'héritier d'Iniesta.",motto:"Mon contrôle orienté est une vision. Je sais déjà où je vais.",traits:['Contrôle','Vision','Récupération','Technique'],attrs:{vitesse:78,technique:95,physique:74,mental:90,vision:94,defense:78,endurance:86,puissance:70}},
+  {id:'rodri',name:'Rodri',flag:'🇪🇸',pos:'MIL · Man City',num:'16',c:['#5AACDD','#0A2050'],desc:'Ballon d\'Or 2024. Récupération, passes, lecture hors-norme.',motto:"Je suis lent à courir, pas à penser.",traits:['Récupération','Passes','Lecture','Endurance'],attrs:{vitesse:72,technique:90,physique:86,mental:98,vision:94,defense:94,endurance:92,puissance:82}},
+  {id:'modric',name:'Luka Modrić',flag:'🇭🇷',pos:'MIL · Real Madrid',num:'10',c:['#001B5E','#E8D25E'],desc:"Technique épurée, vision 360, endurance, Ballon d'Or 2018.",motto:"L'élégance dans la simplicité.",traits:['Technique','Vision','Endurance','Passes'],attrs:{vitesse:78,technique:96,physique:76,mental:96,vision:97,defense:76,endurance:90,puissance:70}},
+  {id:'zidane',name:'Zinédine Zidane',flag:'🇫🇷',pos:'MIL · Légende',num:'5',c:['#001B5E','#C8102E'],desc:'Technique sublime, touche de balle magique, classe absolue.',motto:"Le football c'est une question d'intelligence et de sens du jeu.",traits:['Technique','Vision','Touche','Classe'],attrs:{vitesse:78,technique:99,physique:82,mental:95,vision:97,defense:68,endurance:82,puissance:78}},
+  {id:'kante',name:"N'Golo Kanté",flag:'🇫🇷',pos:'MIL · Al Ittihad',num:'7',c:['#001489','#FFFFFF'],desc:'Récupération, pressing, endurance surhumaine.',motto:'Le travail invisible est le plus important.',traits:['Récupération','Pressing','Endurance','Duels'],attrs:{vitesse:84,technique:82,physique:82,mental:94,vision:80,defense:96,endurance:97,puissance:80}},
+  {id:'xavi',name:'Xavi Hernández',flag:'🇪🇸',pos:'MIL · Légende',num:'6',c:['#A00040','#003A80'],desc:'Le cerveau du tiki-taka. Contrôle du jeu, vision, précision de passe.',motto:'Avec le ballon, tu es maître du jeu.',traits:['Passes','Vision','Contrôle','Tactique'],attrs:{vitesse:74,technique:97,physique:74,mental:97,vision:99,defense:72,endurance:84,puissance:68}},
+  {id:'iniesta',name:'Andrés Iniesta',flag:'🇪🇸',pos:'MIL · Légende',num:'8',c:['#A00040','#003A80'],desc:'Dribble fluide, vision, calme absolu, champion du monde.',motto:'La qualité technique est plus importante que la vitesse.',traits:['Technique','Dribble','Vision','Calme'],attrs:{vitesse:80,technique:97,physique:75,mental:96,vision:96,defense:70,endurance:82,puissance:70}},
+  {id:'van_dijk',name:'Virgil van Dijk',flag:'🇳🇱',pos:'DEF · Liverpool',num:'4',c:['#C8102E','#F6EB61'],desc:'Défenseur le plus dominant du monde. Aérien, duels, leadership.',motto:"Un match nul me rend plus fou qu'une victoire 3-0.",traits:['Duels','Aérien','Relance','Leadership'],attrs:{vitesse:84,technique:84,physique:94,mental:94,vision:82,defense:97,endurance:86,puissance:93}},
+  {id:'cancelo',name:'João Cancelo',flag:'🇵🇹',pos:'LAT · Barcelone',num:'2',c:['#A00040','#003A80'],desc:'Latéral technique, vision offensive, frappe, polyvalence totale.',motto:'Le latéral doit attaquer autant que défendre.',traits:['Technique','Vision','Frappe','Polyvalence'],attrs:{vitesse:87,technique:90,physique:82,mental:84,vision:88,defense:82,endurance:88,puissance:78}},
+  {id:'ramos',name:'Sergio Ramos',flag:'🇪🇸',pos:'DEF · Retraité',num:'4',c:['#C80010','#FFFFFF'],desc:'Leadership absolu, duels, aérien, buts sur coup franc.',motto:'Les grands joueurs gagnent les duels qui comptent.',traits:['Leadership','Duels','Aérien','Buts'],attrs:{vitesse:78,technique:82,physique:90,mental:98,vision:80,defense:97,endurance:84,puissance:92}},
+  {id:'neuer',name:'Manuel Neuer',flag:'🇩🇪',pos:'GK · Bayern Munich',num:'1',c:['#DC052D','#0066B2'],desc:"Balayeur révolutionnaire, pieds de milieu, réflexes, commandement.",motto:"Le gardien moderne doit être le premier attaquant de l'équipe.",traits:['Balayeur','Pieds','Réflexes','Commandement'],attrs:{vitesse:72,technique:88,physique:90,mental:94,vision:88,defense:97,endurance:80,puissance:84}},
+  {id:'alisson',name:'Alisson Becker',flag:'🇧🇷',pos:'GK · Liverpool',num:'1',c:['#C8102E','#F6EB61'],desc:'Calme, pieds propres, sorties, réflexes. Le gardien le plus complet.',motto:"La sérénité du gardien se transmet à toute l'équipe.",traits:['Calme','Pieds','Sorties','Réflexes'],attrs:{vitesse:68,technique:86,physique:90,mental:96,vision:86,defense:97,endurance:78,puissance:84}},
+  {id:'henry',name:'Thierry Henry',flag:'🇫🇷',pos:'ATT · Légende',num:'14',c:['#9B1A14','#D4101A'],desc:'Vitesse, technique, finition clinique, le parfait attaquant moderne.',motto:"La perfection n'existe pas, mais on peut s'en approcher chaque jour.",traits:['Vitesse','Technique','Finition','Intelligence'],attrs:{vitesse:96,technique:93,physique:87,mental:92,vision:88,defense:60,endurance:88,puissance:85}},
+  {id:'neymar',name:'Neymar Jr.',flag:'🇧🇷',pos:'ATT · Al Hilal',num:'10',c:['#002B6A','#FFD700'],desc:'Dribble élégant, finesse brésilienne, créativité sans limite.',motto:'Le plus beau des buts est le prochain.',traits:['Dribble','Finesse','Créativité','Buts'],attrs:{vitesse:88,technique:96,physique:74,mental:82,vision:90,defense:44,endurance:80,puissance:72}},
+  {id:'debruyne',name:'Kevin De Bruyne',flag:'🇧🇪',pos:'MIL · Man City',num:'17',c:['#5AACDD','#EF0107'],desc:'Meilleur milieu offensif du monde. Passes laser, vision absolue.',motto:'Donne le ballon à la bonne personne au bon moment.',traits:['Vision','Passes','Frappe','Leadership'],attrs:{vitesse:80,technique:94,physique:80,mental:95,vision:99,defense:65,endurance:87,puissance:82}},
+  {id:'benzema',name:'Karim Benzema',flag:'🇫🇷',pos:'ATT · Al Ittihad',num:'9',c:['#001B5E','#E8D25E'],desc:'Technique de luxe, dos au but, passes décisives, leadership.',motto:"Un vrai attaquant ne se contente pas de marquer, il crée.",traits:['Technique','Dos au but','Vision','Leadership'],attrs:{vitesse:82,technique:92,physique:85,mental:94,vision:90,defense:58,endurance:83,puissance:84}},
+  {id:'griezmann',name:'Antoine Griezmann',flag:'🇫🇷',pos:'ATT · Atlético',num:'7',c:['#CB3524','#003087'],desc:'Technique parfaite, mouvement, intelligence, champion du monde.',motto:'Le talent sans discipline ne vaut rien.',traits:['Technique','Mouvement','Intelligence','Régularité'],attrs:{vitesse:84,technique:91,physique:82,mental:93,vision:88,defense:70,endurance:88,puissance:78}},
+  {id:'saka',name:'Bukayo Saka',flag:'🏴󠁧󠁢󠁥󠁮󠁧󠁿',pos:'AIL · Arsenal',num:'7',c:['#EF0107','#063672'],desc:'Régularité, dribble, passes et buts, le joueur complet d\'Arsenal.',motto:'Chaque match est une occasion de montrer qui tu es.',traits:['Régularité','Polyvalence','Dribble','Passes'],attrs:{vitesse:87,technique:89,physique:80,mental:90,vision:87,defense:72,endurance:89,puissance:78}},
+  {id:'trent',name:'Trent Alexander-Arnold',flag:'🏴󠁧󠁢󠁥󠁮󠁧󠁿',pos:'LAT · Real Madrid',num:'66',c:['#C81020','#001B5E'],desc:'Latéral le plus créatif du monde. Passes décisives, vision de meneur.',motto:'Ma position ne limite pas ma créativité.',traits:['Passes','Vision','Corners','Créativité'],attrs:{vitesse:82,technique:92,physique:77,mental:85,vision:94,defense:72,endurance:83,puissance:74}},
+  {id:'ruben_dias',name:'Rúben Dias',flag:'🇵🇹',pos:'DEF · Man City',num:'3',c:['#5AACDD','#0A2050'],desc:'Défenseur dominant, lecture du jeu, relance, leadership silencieux.',motto:'La défense parfaite permet tout le reste.',traits:['Lecture','Relance','Leadership','Duels'],attrs:{vitesse:80,technique:84,physique:90,mental:95,vision:84,defense:97,endurance:85,puissance:89}},
+  {id:'osimhen',name:'Victor Osimhen',flag:'🇳🇬',pos:'ATT · Galatasaray',num:'9',c:['#FDB927','#041E42'],desc:'Vitesse explosive, jeu de tête, puissance, meilleur 9 africain.',motto:"L'Afrique a sa place au sommet du football mondial.",traits:['Vitesse','Physique','Jeu de tête','Finition'],attrs:{vitesse:96,technique:82,physique:94,mental:86,vision:78,defense:48,endurance:87,puissance:94}},
+];
+
+// ═══════════════════════════════════════════════════════
+// 30 MASTERCLASS LESSONS
+// ═══════════════════════════════════════════════════════
+const MC=[
+  {id:1,c:'Kylian Mbappé',f:'🇫🇷',t:'La décision en 0,1 seconde',d:'Réduire son temps de décision pour devenir imprévisible.',dur:'4:32',tags:['technique','attaquant'],q:"La différence entre un bon et un très bon joueur : le très bon a déjà décidé avant de recevoir le ballon. Tu scannes en permanence. L'instinct, ça s'entraîne."},
+  {id:2,c:'Cristiano Ronaldo',f:'🇵🇹',t:"L'entraînement après l'entraînement",d:'Pourquoi 10 000 heures ne suffisent pas.',dur:'5:20',tags:['physique','mental'],q:"Après chaque entraînement collectif, je restais 90 minutes de plus. Tout seul. La plupart font ce qu'on demande. Les grands font ça plus ce qu'ils se demandent à eux-mêmes."},
+  {id:3,c:'Lionel Messi',f:'🇦🇷',t:'Le dribble comme conversation',d:"Le dribble n'est pas une technique, c'est une communication.",dur:'4:48',tags:['technique','attaquant'],q:"Quand je dribble, je ne pense pas à mes pieds. Je pense au défenseur. Son poids, sa position. Mon corps fait le reste automatiquement."},
+  {id:4,c:'Jude Bellingham',f:'🏴󠁧󠁢󠁥󠁮󠁧󠁿',t:'Le leadership sans brassard',d:"Influencer une équipe avant d'avoir le droit de parler.",dur:'4:20',tags:['mental','milieu'],q:"Le leadership, c'est pas crier. C'est être le premier à l'effort. Sois celui qui court encore quand tout le monde est fatigué."},
+  {id:5,c:'Rodri',f:'🇪🇸',t:'La lecture du jeu s\'entraîne',d:'Le Ballon d\'Or 2024 explique comment il voit avant les autres.',dur:'5:30',tags:['tactique','milieu'],q:"Je suis lent à courir, pas à penser. Je passe des heures à analyser les patterns adverses. La lecture du jeu n'est pas un don — c'est du travail."},
+  {id:6,c:'Pedri',f:'🇪🇸',t:'Le contrôle orienté comme arme',d:'Chaque premier contact détermine ce qui suit.',dur:'3:55',tags:['technique','milieu'],q:"Mon contrôle orienté n'est pas une technique — c'est une vision. Quand je reçois, j'ai déjà décidé où je vais. Le contrôle m'amène dans cet espace."},
+  {id:7,c:'Mohamed Salah',f:'🇪🇬',t:'La régularité comme talent',d:'20 buts chaque saison vaut plus que 35 une seule fois.',dur:'4:48',tags:['mental','attaquant'],q:"La constance, c'est un choix quotidien : alimentation, sommeil, mentalité. Je ne rate pratiquement jamais un match. C'est ça mon vrai talent."},
+  {id:8,c:'Zinédine Zidane',f:'🇫🇷',t:"L'élégance au service du collectif",d:"La beauté du geste n'est pas de l'égoïsme.",dur:'5:15',tags:['technique','milieu'],q:"On me reprochait de vouloir faire beau. Quand tu contrôles proprement, tu mets ton partenaire dans les meilleures conditions."},
+  {id:9,c:'Erling Haaland',f:'🇳🇴',t:'Le placement du finisseur',d:"Être au bon endroit avant que l'action commence.",dur:'4:10',tags:['technique','attaquant'],q:"Je ne suis pas le plus technique. Mais je suis toujours où le ballon va arriver. Mon but est souvent marqué avant que l'action commence."},
+  {id:10,c:"N'Golo Kanté",f:'🇫🇷',t:'Le pressing comme philosophie',d:'Récupérer partout, sans jamais montrer l\'effort.',dur:'3:40',tags:['physique','milieu'],q:"Sur le terrain c'est simple : je cours, je récupère, je transmets. Le pressing, c'est du respect pour l'équipe."},
+  {id:11,c:'Virgil van Dijk',f:'🇳🇱',t:'L\'art du duel défensif',d:'Anticiper plutôt que réagir.',dur:'4:25',tags:['tactique','defenseur'],q:"Un bon défenseur ne court pas après le ballon. Il force l'attaquant à aller où il veut. Chaque duel est une négociation."},
+  {id:12,c:'Manuel Neuer',f:'🇩🇪',t:'Le gardien libero — révolution',d:'Pourquoi le gardien moderne est premier et dernier défenseur.',dur:'5:45',tags:['tactique','gardien'],q:"Quand j'ai commencé à sortir de ma surface, on pensait que j'étais fou. Mais si je peux couper une passe dangereuse à 25m, pourquoi rester sur ma ligne ?"},
+  {id:13,c:'Luka Modrić',f:'🇭🇷',t:'La longévité par l\'intelligence',d:'Comment jouer au plus haut niveau après 35 ans.',dur:'5:00',tags:['mental','milieu'],q:"À 22 ans, j'utilisais ma vitesse. À 38, j'utilise mon cerveau. L'intelligence peut compenser beaucoup de choses physiques."},
+  {id:14,c:'Vinícius Jr.',f:'🇧🇷',t:'Rebondir après les critiques',d:'Transformer les doutes extérieurs en carburant.',dur:'4:55',tags:['mental','attaquant'],q:"En 2021, les gens disaient que je ne savais pas finir. J'ai travaillé mes frappes 2h par jour. L'année suivante, 22 buts."},
+  {id:15,c:'Lamine Yamal',f:'🇪🇸',t:'Jouer sans peur à haut niveau',d:'La mentalité du prodige qui ne ressent pas la pression.',dur:'3:30',tags:['mental','attaquant'],q:"Les gens me demandent comment je gère la pression. Je ne la gère pas — je ne la ressens pas. Sur le terrain : le ballon, les coéquipiers, l'adversaire. C'est tout."},
+  {id:16,c:'Cristiano Ronaldo',f:'🇵🇹',t:'La préparation mentale du buteur',d:'Le rituel avant match pour atteindre le pic de performance.',dur:'4:35',tags:['mental','physique'],q:"2h avant le match, je visualise. Chaque frappe, chaque mouvement. Quand le coup de sifflet retentit, j'ai déjà joué ce match dans ma tête."},
+  {id:17,c:'Alisson Becker',f:'🇧🇷',t:'La sérénité sous pression',d:"Comment rester calme quand l'équipe est en danger.",dur:'4:20',tags:['mental','gardien'],q:"Le gardien absorbe la pression. Quand il panique, toute l'équipe panique. Ma voix doit être calme même quand je transpire."},
+  {id:18,c:'Mohamed Salah',f:'🇪🇬',t:'Construire son pied faible',d:'Comment Salah a développé son pied gauche dévastateur.',dur:'4:55',tags:['technique','physique'],q:"Mon pied gauche n'a pas toujours été comme ça. J'ai passé des centaines d'heures à le travailler seul. Aujourd'hui les défenseurs ne savent plus sur quel pied je vais aller."},
+  {id:19,c:'Thierry Henry',f:'🇫🇷',t:'La course en profondeur parfaite',d:"L'art d'exploiter le dos de la défense.",dur:'4:42',tags:['technique','attaquant'],q:"Une bonne course, ça ne s'improvise pas. Je regardais les lignes défensives pendant les premières minutes pour comprendre quand elles montaient. Ensuite, je partais au bon moment."},
+  {id:20,c:'Xavi Hernández',f:'🇪🇸',t:'Dominer le jeu par la possession',d:"Le tiki-taka n'est pas un style, c'est une philosophie.",dur:'5:15',tags:['tactique','milieu'],q:"Avoir le ballon, c'est avoir le pouvoir. Chaque passe courte est une invitation à en jouer une autre. L'adversaire se fatigue à courir après ce qu'il n'a pas."},
+  {id:21,c:'Sergio Ramos',f:'🇪🇸',t:'Gagner les duels qui comptent',d:'Pourquoi le mental prime sur le physique en défense.',dur:'4:50',tags:['mental','defenseur'],q:"J'ai gagné beaucoup de duels avec des joueurs plus rapides et plus forts. Pas parce que j'étais meilleur physiquement. Parce que je voulais gagner ce duel plus qu'eux."},
+  {id:22,c:'Neymar Jr.',f:'🇧🇷',t:"L'improvisation comme arme tactique",d:'Quand l\'imprévisible devient une stratégie.',dur:'4:28',tags:['technique','attaquant'],q:"Personne ne peut défendre quelque chose qu'il ne peut pas anticiper. Chaque dribble que j'invente, c'est une question sans réponse pour le défenseur."},
+  {id:23,c:'Andrés Iniesta',f:'🇪🇸',t:'Le calme comme superpuissance',d:'Comment rester serein sous la pression des grands moments.',dur:'5:02',tags:['mental','milieu'],q:"Tous les grands moments de ma carrière, je les ai vécus avec calme. Ce but en finale du monde — j'ai juste fait ce que je fais à l'entraînement."},
+  {id:24,c:'Kevin De Bruyne',f:'🇧🇪',t:'La passe décisive parfaite',d:'Pourquoi la dernière passe est plus importante que le but.',dur:'4:38',tags:['technique','milieu'],q:"La meilleure passe n'est pas la plus belle. C'est celle qui met ton partenaire dans la position la plus simple possible pour marquer."},
+  {id:25,c:'Karim Benzema',f:'🇫🇷',t:"L'attaquant complet — bien plus que les buts",d:'Comment Benzema a révolutionné le poste de 9.',dur:'5:18',tags:['technique','attaquant'],q:"Un vrai 9 ne se résume pas aux buts. Je crée des espaces, je joue des combinaisons à une touche, je protège le ballon. Les buts sont la conséquence de tout le reste."},
+  {id:26,c:'Antoine Griezmann',f:'🇫🇷',t:'Le mouvement sans ballon',d:"Ce qui se passe avant de recevoir le ballon est aussi important.",dur:'4:22',tags:['tactique','attaquant'],q:"80% du travail d'un attaquant se fait sans le ballon. Se démarquer, occuper les espaces, préparer la prochaine action. C'est ça qui crée les opportunités."},
+  {id:27,c:'João Cancelo',f:'🇵🇹',t:"L'ère du latéral offensif",d:'Comment un arrière peut être le meilleur créateur.',dur:'4:15',tags:['tactique','defenseur'],q:"Les gens pensent que les latéraux défendent. Moi, je crée des buts. Ma montée, c'est un couloir de jeu. Ma passe, c'est souvent l'avant-dernière action avant le but."},
+  {id:28,c:'Bukayo Saka',f:'🏴󠁧󠁢󠁥󠁮󠁧󠁿',t:'La polyvalence comme superpower',d:"Être capable de jouer partout change tout.",dur:'4:10',tags:['tactique','attaquant'],q:"Chaque poste que j'ai essayé m'a rendu meilleur. Quand tu comprends le jeu de plusieurs positions, tu deviens un joueur impossible à lire."},
+  {id:29,c:'Lionel Messi',f:'🇦🇷',t:'La connexion avec ses coéquipiers',d:'Pourquoi les passes de Messi sont aussi brillantes que ses dribbles.',dur:'5:25',tags:['technique','milieu'],q:"Le meilleur assist est celui qui met le partenaire dans la position la plus facile. Pas la plus spectaculaire. La plus facile. C'est ça, la vraie vision du jeu."},
+  {id:30,c:'Jude Bellingham',f:'🏴󠁧󠁢󠁥󠁮󠁧󠁿',t:'Box-to-box : la version XXIe siècle',d:'Comment le milieu complet moderne fonctionne.',dur:'6:05',tags:['tactique','milieu'],q:"Un milieu moderne doit être partout. Défensif sans le ballon, offensif avec. Je surveille mes stats de distance. Moins de 11km en 90 min, je n'ai pas fait mon match."},
+];
+
+// ═══════════════════════════════════════════════════════
+// HOME PREVIEW
+// ═══════════════════════════════════════════════════════
+function buildHome(){
+  const prev=document.getElementById('hprev');
+  const feat=['mbappe','messi','ronaldo','bellingham'];
+  prev.innerHTML=CH.filter(c=>feat.includes(c.id)).map(c=>`
+    <div class="cp" onclick="gP('champ')">
+      <div class="cpa"><span class="jn">${c.num}</span><span class="fl">${c.flag}</span>
+        <div class="fig" style="background:linear-gradient(180deg,${c.c[0]},${c.c[1]})"></div>
+      </div>
+      <div class="cpii"><div class="cpn">${c.name}</div><div class="cpr">${c.pos}</div></div>
+      <div class="cpq">${c.motto.split('.')[0]}.</div>
+    </div>`).join('');
+}
+
+// ═══════════════════════════════════════════════════════
+// CAROUSEL
+// ═══════════════════════════════════════════════════════
+const VIS=4;
+function buildCar(){
+  const track=document.getElementById('crt');
+  track.innerHTML=CH.map(c=>`
+    <div class="ci">
+      <div class="cc ${C&&C.id===c.id?'sel':''}" id="cc-${c.id}" onclick="selC('${c.id}',this)">
+        <div class="ccgl"></div>
+        <div class="ccv" style="background:linear-gradient(170deg,${c.c[0]},${c.c[1]});">
+          <div class="ccvn">${c.num}</div>
+          <div class="ccvf">${c.flag}</div>
+          <svg class="ccvfig" viewBox="0 0 100 186" fill="none">
+            <ellipse cx="50" cy="22" rx="14" ry="14" fill="rgba(255,255,255,.13)"/>
+            <path d="M29 42Q21 72 19 114L28 116Q34 93 37 81L39 134L61 134L63 81Q66 93 72 116L81 114Q79 72 71 42Q62 36 50 36Q38 36 29 42Z" fill="rgba(255,255,255,.09)"/>
+            <path d="M28 116L18 172L28 174L39 134Z" fill="rgba(255,255,255,.07)"/>
+            <path d="M72 116L82 172L72 174L61 134Z" fill="rgba(255,255,255,.07)"/>
+          </svg>
+          <div class="ccvsb"></div>
+        </div>
+        <div class="ccb">
+          <div class="ccbn">${c.name}</div>
+          <div class="ccbp">${c.pos}</div>
+          <div class="ccbd">${c.desc}</div>
+          <div class="ccbt">${c.traits.map(t=>`<span class="cct">${t}</span>`).join('')}</div>
+        </div>
+      </div>
+    </div>`).join('');
+  const pages=Math.ceil(CH.length/VIS);
+  document.getElementById('cnd').innerHTML=Array.from({length:pages},(_,i)=>`<div class="cdot ${i===0?'on':''}"></div>`).join('');
+  carP=0;updCar();
+}
+function updCar(){
+  document.getElementById('crt').style.transform=`translateX(-${carP*25}%)`;
+  document.querySelectorAll('.cdot').forEach((d,i)=>d.classList.toggle('on',i===Math.floor(carP/VIS)));
+}
+function cNext(){carP=Math.min(carP+1,CH.length-VIS);updCar();}
+function cPrev(){carP=Math.max(carP-1,0);updCar();}
+function selC(id,el){
+  document.querySelectorAll('.cc').forEach(c=>c.classList.remove('sel'));
+  el.classList.add('sel');
+  C=CH.find(c=>c.id===id);
+  localStorage.setItem('so_c',JSON.stringify(C));
+  const scd=document.getElementById('scd');scd.classList.add('on');
+  document.getElementById('scdf').textContent=C.flag;
+  document.getElementById('scdn').textContent=C.name;
+  document.getElementById('scdm').textContent=C.motto;
+  document.getElementById('ncn').textContent=C.name;
+  document.getElementById('nca').textContent=C.flag;
+  updChampUI();tst(C.name+' sélectionné ✓');
+}
+function updChampUI(){
+  if(!C)return;
+  document.getElementById('alf2').textContent=C.flag;
+  document.getElementById('aln').textContent=C.name;
+  document.getElementById('als').textContent=C.pos;
+}
+
+// ═══════════════════════════════════════════════════════
+// MASTERCLASS
+// ═══════════════════════════════════════════════════════
+function buildMC(filter){
+  const grid=document.getElementById('mcg');
+  const items=filter==='all'?MC:MC.filter(m=>m.tags.includes(filter));
+  grid.innerHTML=items.map(m=>`
+    <div class="mcc" onclick="openMC(${m.id})">
+      <div class="mcct" style="background:var(--k3);">
+        <div class="mccn2">${String(m.id).padStart(2,'0')}</div>
+        <div class="mccp">▶</div>
+        <div class="mccd">${m.dur}</div>
+      </div>
+      <div class="mccb">
+        <div class="mccch"><span class="mcccf">${m.f}</span><span class="mcccn">${m.c}</span></div>
+        <div class="mcct2">${m.t}</div>
+        <div class="mccs">${m.d}</div>
+        <div class="mcctags">${m.tags.map(t=>`<span class="mctag">${t}</span>`).join('')}</div>
+      </div>
+    </div>`).join('');
+}
+function mcF(f,btn){document.querySelectorAll('.mfb').forEach(b=>b.classList.remove('on'));btn.classList.add('on');buildMC(f);}
+function openMC(id){
+  curL=MC.find(m=>m.id===id);
+  document.getElementById('mmcn').textContent=curL.f+' '+curL.c;
+  document.getElementById('mmt').textContent=curL.t;
+  document.getElementById('mmq').textContent=curL.q;
+  document.getElementById('mmar').classList.remove('on');
+  document.getElementById('mmar').innerHTML='';
+  document.getElementById('mmo').classList.add('on');
+}
+function cMM(){document.getElementById('mmo').classList.remove('on');}
+async function applyL(){
+  const box=document.getElementById('mmar');
+  if(!C){box.innerHTML='⚠ Choisissez d\'abord un champion dans "Mon Champion".';box.classList.add('on');return;}
+  box.innerHTML='<div class="dts"><span></span><span></span><span></span><span class="dtx">Application à votre profil...</span></div>';
+  box.classList.add('on');
+  const resp=await callAI([{role:'user',content:`Tu es ${C.name}. Ta philosophie: ${C.motto}. Tes traits: ${C.traits.join(', ')}.\n\nLeçon: "${curL.t}" — Citation: "${curL.q}"\n\nProfil: ${profStr()}\n\nExplique concrètement comment ce joueur peut appliquer cette leçon. Sois direct, exigeant. Réponds en ${lk()}.`}],700);
+  box.innerHTML=fmt(resp);
+}
+
+// ═══════════════════════════════════════════════════════
+// PROFIL
+// ═══════════════════════════════════════════════════════
+function fillP(){
+  try{P=JSON.parse(localStorage.getItem('so_p')||'{}');}catch(e){}
+  const map={ppr:'prenom',pnom:'nom',page:'age',ph2:'taille',pw:'poids',pnat:'nat',pclub2:'club',pforts:'forts',pfaibles:'faibles',pct:'oct',plt:'olt'};
+  for(const[id,key]of Object.entries(map)){const el=document.getElementById(id);if(el&&P[key])el.value=P[key];}
+  if(P.poste)document.getElementById('ppos').value=P.poste;
+  if(P.niveau)document.getElementById('plvl2').value=P.niveau;
+  if(P.pied)document.querySelectorAll('#chp .pc').forEach(b=>b.classList.toggle('on',b.textContent===P.pied));
+  if(P.train)document.querySelectorAll('#cht .pc').forEach(b=>b.classList.toggle('on',(P.train||[]).includes(b.textContent)));
+  if(P.match)document.querySelectorAll('#chm .pc').forEach(b=>b.classList.toggle('on',b.textContent===P.match));
+  updSidebar();
+}
+function sC(el,g){el.parentElement.querySelectorAll('.pc').forEach(b=>b.classList.remove('on'));el.classList.add('on');}
+function mC(el){el.classList.toggle('on');}
+function saveP(){
+  P={
+    prenom:document.getElementById('ppr').value,nom:document.getElementById('pnom').value,
+    age:document.getElementById('page').value,taille:document.getElementById('ph2').value,
+    poids:document.getElementById('pw').value,nat:document.getElementById('pnat').value,
+    poste:document.getElementById('ppos').value,niveau:document.getElementById('plvl2').value,
+    club:document.getElementById('pclub2').value,forts:document.getElementById('pforts').value,
+    faibles:document.getElementById('pfaibles').value,oct:document.getElementById('pct').value,
+    olt:document.getElementById('plt').value,
+    pied:[...document.querySelectorAll('#chp .pc.on')].map(b=>b.textContent)[0]||'',
+    train:[...document.querySelectorAll('#cht .pc.on')].map(b=>b.textContent),
+    match:[...document.querySelectorAll('#chm .pc.on')].map(b=>b.textContent)[0]||'',
+  };
+  localStorage.setItem('so_p',JSON.stringify(P));
+  updSidebar();tst('Profil sauvegardé ✓');
+}
+function updSidebar(){
+  const init=((P.prenom||'').charAt(0)+(P.nom||'').charAt(0)).toUpperCase()||'—';
+  document.getElementById('plav').textContent=init||'—';
+  document.getElementById('pln').textContent=(P.prenom?P.prenom+' ':'')+( P.nom||'Votre profil');
+  document.getElementById('plr').textContent=P.poste||'—';
+  document.getElementById('pllvl').textContent=P.niveau||'—';
+  document.getElementById('plclub').textContent=P.club||'—';
+  document.getElementById('plpied').textContent=P.pied||'—';
+  document.getElementById('pltrain').textContent=(P.train||[]).join(', ')||'—';
+  document.getElementById('plmatch').textContent=P.match||'—';
+}
+
+// ═══════════════════════════════════════════════════════
+// ANALYSE SYNC
+// ═══════════════════════════════════════════════════════
+function syncA(){
+  updChampUI();
+  if(C){document.getElementById('nca').textContent=C.flag;document.getElementById('ncn').textContent=C.name;}
+}
+
+// ═══════════════════════════════════════════════════════
+// FILE UPLOAD — FIXED VERSION
+// ═══════════════════════════════════════════════════════
+
+// Setup drag & drop
+document.addEventListener('DOMContentLoaded',()=>{
+  const zone = document.getElementById('upz');
+  if(!zone) return;
+
+  zone.addEventListener('click', ()=>document.getElementById('af').click());
+
+  zone.addEventListener('dragover', e=>{
+    e.preventDefault();
+    zone.classList.add('drag');
+  });
+  zone.addEventListener('dragleave', ()=>zone.classList.remove('drag'));
+  zone.addEventListener('drop', e=>{
+    e.preventDefault();
+    zone.classList.remove('drag');
+    const f = e.dataTransfer.files[0];
+    if(f) processFile(f);
+  });
+});
+
+function onFile(e){
+  const f = e.target.files[0];
+  if(f) processFile(f);
+}
+
+function processFile(file){
+  capturedImageB64 = null;
+  const isVideo = file.type.startsWith('video/');
+  const isImage = file.type.startsWith('image/');
+
+  if(!isVideo && !isImage){
+    tst('⚠ Format non supporté. Utilise MP4, MOV, JPG ou PNG.');
+    return;
+  }
+
+  if(isImage){
+    // Direct image → resize & convert to base64
+    const reader = new FileReader();
+    reader.onload = e=>{
+      const img = new Image();
+      img.onload = ()=>{
+        const MAX = 1280;
+        let w = img.width, h = img.height;
+        if(w>MAX){h=Math.round(h*(MAX/w));w=MAX;}
+        if(h>MAX){w=Math.round(w*(MAX/h));h=MAX;}
+        const canvas = document.getElementById('fc');
+        canvas.width=w; canvas.height=h;
+        canvas.getContext('2d').drawImage(img,0,0,w,h);
+        capturedImageB64 = canvas.toDataURL('image/jpeg',0.85).split(',')[1];
+        showPreview(file.name);
+        tst('Image chargée ✓');
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  } else {
+    // Video → extract frame at 1s
+    const url = URL.createObjectURL(file);
+    const vid = document.getElementById('fv') || document.createElement('video');
+    vid.id = 'fv';
+    vid.style.display='none';
+    if(!document.getElementById('fv')) document.body.appendChild(vid);
+
+    vid.src = url;
+    vid.muted = true;
+    vid.playsInline = true;
+
+    let extracted = false;
+
+    const doExtract = ()=>{
+      if(extracted) return;
+      extracted = true;
+      try {
+        const MAX = 1280;
+        let w = vid.videoWidth||640, h = vid.videoHeight||360;
+        if(w>MAX){h=Math.round(h*(MAX/w));w=MAX;}
+        const canvas = document.getElementById('fc');
+        canvas.width=w; canvas.height=h;
+        canvas.getContext('2d').drawImage(vid,0,0,w,h);
+        capturedImageB64 = canvas.toDataURL('image/jpeg',0.85).split(',')[1];
+        showPreview(file.name);
+        tst('Frame extraite ✓');
+      } catch(e){
+        tst('Vidéo reçue (frame non extraite)');
+        showPreview(file.name);
+      }
+      URL.revokeObjectURL(url);
+    };
+
+    vid.addEventListener('loadeddata', ()=>{vid.currentTime=1;}, {once:true});
+    vid.addEventListener('seeked', doExtract, {once:true});
+    // Fallback: if seeked never fires
+    setTimeout(()=>{if(!extracted) doExtract();}, 3000);
+    vid.load();
+  }
+}
+
+function showPreview(name){
+  document.getElementById('fplbl').textContent=name;
+  document.getElementById('fprev').classList.add('on');
+}
+
+function clearFile(){
+  capturedImageB64 = null;
+  document.getElementById('fprev').classList.remove('on');
+  document.getElementById('af').value='';
+  const canvas = document.getElementById('fc');
+  canvas.getContext('2d').clearRect(0,0,canvas.width,canvas.height);
+  tst('Fichier supprimé');
+}
+
+// ═══════════════════════════════════════════════════════
+// FOOTBALL DETECTION (local, no AI call)
+// ═══════════════════════════════════════════════════════
+function isFootballRelated(text){
+  const t = text.toLowerCase();
+  if(t.length > 60) return true; // long text = probably legit
+  const KW=['foot','football','soccer','ballon','balle','but','goal','match','terrain','stade','équipe','team','coach','entraîneur','entraînement','training','séance','dribble','frappe','tir','shoot','passe','pass','corner','penalty','faute','défense','attaque','milieu','gardien','pressing','tactique','formation','vitesse','sprint','endurance','physique','marquer','score','victoire','défaite','ligue','championnat','joueur','technique','contrôle','jonglerie','reprise','volée','gauche','droite','pied','tête','occasion','attaquant','remplaçant','titulaire','sélectionné','club','saison','j\'ai joué','j\'ai raté','j\'ai marqué','j\'ai fait','ce soir','hier soir','ce matin','pendant le','lors du','quand je','mon coach','mon équipe','mes coéquipiers'];
+  return KW.some(w=>t.includes(w));
+}
+
+// ═══════════════════════════════════════════════════════
+// VIDEO ANALYSIS
+// ═══════════════════════════════════════════════════════
+async function doVideo(){
+  const desc = document.getElementById('adesc').value.trim();
+  if(!C){tst('⚠ Choisissez un champion d\'abord');return;}
+  if(!desc && !capturedImageB64){tst('⚠ Décrivez votre situation ou uploadez un fichier');return;}
+
+  const vres = document.getElementById('vres');
+  const vrbb = document.getElementById('vrbb');
+  const vwrn = document.getElementById('vwrn');
+  vwrn.classList.remove('on');
+
+  // Football check (only if text provided without image)
+  if(desc && !capturedImageB64 && !isFootballRelated(desc)){
+    vwrn.classList.add('on');
+    return;
+  }
+
+  vres.classList.add('on');
+  vrbb.innerHTML='<div class="dts"><span></span><span></span><span></span><span class="dtx">'+C.name+' analyse ta situation...</span></div>';
+  document.getElementById('vrbt').textContent='Special One AI';
+  document.getElementById('vrts').textContent=new Date().toLocaleTimeString();
+
+  const systemPrompt=`Tu es ${C.name}, champion de football (${C.pos}). Ta philosophie: ${C.motto}. Tes traits: ${C.traits.join(', ')}.
+
+Profil du joueur: ${profStr()}
+
+Analyse dans ton style. Sois direct, concret, exigeant. Structure:
+**Ce qui est bien** — sois précis
+**Ce à corriger** — sois direct, sans complaisance  
+**Ce que j'aurais fait à ta place** — en tant que ${C.name}
+**L'exercice de demain** — concret, 15 minutes max
+
+Réponds en ${lk()}. Max 320 mots.`;
+
+  let userContent;
+  if(capturedImageB64){
+    // Send image + text to Claude Vision
+    userContent = [
+      {type:'image',source:{type:'base64',media_type:'image/jpeg',data:capturedImageB64}},
+      {type:'text',text: desc ? `${systemPrompt}\n\nSituation décrite: "${desc}"\n\nAnalyse aussi l'image ci-dessus.` : `${systemPrompt}\n\nAnalyse ce que tu vois dans l'image.`}
+    ];
+  } else {
+    userContent = `${systemPrompt}\n\nSituation décrite: "${desc}"`;
+  }
+
+  const resp = await callAI([{role:'user',content:userContent}], 900);
+  vrbb.innerHTML = fmt(resp);
+}
+
+// ═══════════════════════════════════════════════════════
+// BIOMETRICS
+// ═══════════════════════════════════════════════════════
+function syncBio(){
+  if(P.age)document.getElementById('bage').value=P.age;
+  if(P.taille)document.getElementById('bh').value=P.taille;
+  if(P.poids)document.getElementById('bw').value=P.poids;
+  if(P.poste){const s=document.getElementById('bpos');for(let o of s.options){if(o.value.toLowerCase().includes(P.poste.toLowerCase().split(' ')[0])){s.value=o.value;break;}}}
+  if(P.niveau){const s=document.getElementById('blvl');const map={'loisir':'Loisir','amateur':'Amateur','régional':'Régional','semi':'Semi-pro','pro':'Professionnel'};const niv=P.niveau.toLowerCase();for(const[k,v]of Object.entries(map)){if(niv.includes(k)){s.value=v;break;}}}
+}
+
+const PROSTD={
+  'Attaquant':{taille:{v:181,l:'175-195'},poids:{v:78,l:'72-85'},sprint:{v:3.8,l:'<4.0s'},detente:{v:68,l:'>65cm'},dist:{v:9.5,l:'9-11km'},vo2:{v:60,l:'>58'}},
+  'Ailier':{taille:{v:176,l:'170-185'},poids:{v:73,l:'68-80'},sprint:{v:3.7,l:'<3.9s'},detente:{v:65,l:'>62cm'},dist:{v:10.5,l:'10-12km'},vo2:{v:62,l:'>60'}},
+  'Milieu Offensif':{taille:{v:178,l:'172-185'},poids:{v:74,l:'68-82'},sprint:{v:4.0,l:'<4.2s'},detente:{v:62,l:'>58cm'},dist:{v:10.8,l:'10-12km'},vo2:{v:62,l:'>60'}},
+  'Milieu Central':{taille:{v:180,l:'174-188'},poids:{v:76,l:'70-84'},sprint:{v:4.1,l:'<4.3s'},detente:{v:62,l:'>58cm'},dist:{v:11.2,l:'10.5-12.5km'},vo2:{v:63,l:'>60'}},
+  'Milieu Défensif':{taille:{v:182,l:'175-190'},poids:{v:78,l:'72-86'},sprint:{v:4.2,l:'<4.4s'},detente:{v:63,l:'>60cm'},dist:{v:11.5,l:'11-13km'},vo2:{v:63,l:'>60'}},
+  'Latéral':{taille:{v:178,l:'172-186'},poids:{v:75,l:'69-82'},sprint:{v:3.9,l:'<4.1s'},detente:{v:64,l:'>61cm'},dist:{v:11.0,l:'10.5-12km'},vo2:{v:62,l:'>60'}},
+  'Défenseur Central':{taille:{v:186,l:'180-196'},poids:{v:82,l:'76-90'},sprint:{v:4.2,l:'<4.4s'},detente:{v:68,l:'>65cm'},dist:{v:10.2,l:'9.5-11km'},vo2:{v:60,l:'>57'}},
+  'Gardien':{taille:{v:188,l:'182-198'},poids:{v:82,l:'76-90'},sprint:{v:4.5,l:'<4.7s'},detente:{v:72,l:'>68cm'},dist:{v:5.5,l:'5-7km'},vo2:{v:56,l:'>53'}},
+};
+
+function clamp(v,lo,hi){return Math.max(lo,Math.min(hi,v||0));}
+function scoreColor(v){return v>=80?'#5DB87A':v>=60?'var(--g)':v>=40?'#E8A84C':'var(--r)';}
+function scoreLabel(v){return v>=80?'Excellent':v>=60?'Bon':v>=40?'Moyen':'Faible';}
+
+function calcScores(){
+  const g=id=>parseFloat(document.getElementById(id)?.value)||0;
+  const age=g('bage'),h=g('bh'),w=g('bw'),spr=g('bspr'),det=g('bdet'),dist=g('bdist'),vo2=g('bvo2'),hr=g('bhr'),hrr=g('bhrr'),exp=g('bexp'),pacc=g('bpacc'),duel=g('bduel'),sprm=g('bsprm'),touch=g('btouch');
+  const lvl=document.getElementById('blvl')?.value||'Amateur';
+  const lvlMap={Loisir:18,Amateur:36,Régional:54,'Semi-pro':72,Professionnel:90};
+  const lvlScore=lvlMap[lvl]||36;
+  const bmi=h>0&&w>0?w/((h/100)**2):0;
+  const bmiScore=bmi>0?clamp(Math.round(100-Math.abs(bmi-22)*9),0,100):0;
+  const ageScore=age>0?clamp(age<16?40+age*3:age<=28?clamp(70+age*1.2,70,100):clamp(100-(age-28)*4,10,100),0,100):0;
+  const sprScore=spr>0?clamp(Math.round(100-(spr-3.5)*60),0,100):0;
+  const detScore=det>0?clamp(Math.round(40+det*0.9),0,100):0;
+  const distScore=dist>0?clamp(Math.round(dist*8),0,100):0;
+  const vo2Score=vo2>0?clamp(Math.round((vo2-30)*2.5),0,100):0;
+  const hrScore=hr>0?clamp(Math.round(100-(hr-40)*2),0,100):0;
+  const hrrScore=hrr>0?clamp(Math.round(hrr*2.5),0,100):0;
+  const expScore=exp>0?clamp(Math.round(30+exp*6),0,100):0;
+  const paccScore=pacc>0?clamp(Math.round((pacc-40)*1.6),0,100):0;
+  const duelScore=duel>0?clamp(Math.round(duel*1.4),0,100):0;
+  const sprmScore=sprm>0?clamp(Math.round(sprm*3.5),0,100):0;
+  const touchScore=touch>0?clamp(Math.round(touch*1.1),0,100):0;
+  return{lvlScore,bmiScore,ageScore,sprScore,detScore,distScore,vo2Score,hrScore,hrrScore,expScore,paccScore,duelScore,sprmScore,touchScore,age,h,w,spr,det,dist,vo2,hr,hrr,exp,pacc,duel,sprm,touch};
+}
+
+function buildScores(){
+  const s=calcScores();
+  const CIRC=2*Math.PI*24;
+  const scores=[
+    {lbl:'Niveau',ico:'🏆',v:s.lvlScore},{lbl:'Vitesse',ico:'⚡',v:s.sprScore},
+    {lbl:'Détente',ico:'🦘',v:s.detScore},{lbl:'Endurance',ico:'🫀',v:s.distScore},
+    {lbl:'VO2max',ico:'💨',v:s.vo2Score},{lbl:'FC repos',ico:'❤️',v:s.hrScore},
+    {lbl:'Récup.',ico:'⚡',v:s.hrrScore},{lbl:'Physique',ico:'💪',v:s.bmiScore},
+    {lbl:'Passes %',ico:'🎯',v:s.paccScore},{lbl:'Duels',ico:'⚔️',v:s.duelScore},
+    {lbl:'Expérience',ico:'📅',v:s.expScore},
+    {lbl:'Global',ico:'⭐',v:Math.round([s.lvlScore,s.sprScore,s.detScore,s.distScore,s.vo2Score,s.expScore].filter(x=>x>0).reduce((a,b)=>a+b,0)/Math.max(1,[s.lvlScore,s.sprScore,s.detScore,s.distScore,s.vo2Score,s.expScore].filter(x=>x>0).length))},
+  ];
+  document.getElementById('sgrid').innerHTML=scores.map(sc=>{
+    const col=scoreColor(sc.v);
+    const off=CIRC-(CIRC*(sc.v/100));
+    return`<div class="sc">
+      <div style="font-size:10px;margin-bottom:3px">${sc.ico}</div>
+      <div class="sclbl">${sc.lbl}</div>
+      <div class="scr">
+        <svg viewBox="0 0 56 56" width="56" height="56">
+          <circle class="bgc" cx="28" cy="28" r="24"/>
+          <circle class="fgc" cx="28" cy="28" r="24" stroke="${col}" stroke-dasharray="${CIRC.toFixed(1)}" stroke-dashoffset="${off.toFixed(1)}" style="transform:rotate(-90deg);transform-origin:28px 28px"/>
+        </svg>
+        <div class="scnum" style="color:${col};font-size:15px">${sc.v||'—'}</div>
+      </div>
+      <div class="scsub" style="color:${col}">${sc.v>0?scoreLabel(sc.v):'—'}</div>
+    </div>`;
+  }).join('');
+  buildSimilarity(s);
+  buildRadar(s);
+  buildTable(s);
+}
+function recalc(){buildScores();}
+
+function buildSimilarity(s){
+  if(!C){document.getElementById('simscore').textContent='—';return;}
+  const ca=C.attrs;
+  const userVals={vitesse:s.sprScore,technique:Math.round((s.lvlScore+(s.paccScore||0))/2)||s.lvlScore,physique:Math.round((s.bmiScore+s.detScore)/2)||s.bmiScore,mental:Math.round((s.ageScore+s.expScore)/2)||s.ageScore,vision:s.paccScore||s.lvlScore,defense:s.duelScore||Math.round(s.lvlScore*0.85),endurance:s.distScore,puissance:Math.round((s.detScore+(s.sprmScore||0))/2)||s.detScore};
+  const attrs=['vitesse','technique','physique','mental','vision','defense','endurance','puissance'];
+  const labels={vitesse:'Vitesse',technique:'Technique',physique:'Physique',mental:'Mental',vision:'Vision',defense:'Défense',endurance:'Endurance',puissance:'Puissance'};
+  const diffs=attrs.map(a=>{const u=userVals[a]||0;const ch=ca[a]||0;return{attr:a,u,c:ch,sim:Math.round(100-Math.abs(u-ch)),diff:ch-u};});
+  const ws={vitesse:1,technique:1.5,physique:1,mental:1.5,vision:1.3,defense:0.8,endurance:1,puissance:1};
+  const totalW=Object.values(ws).reduce((a,b)=>a+b,0);
+  const weightedSim=Math.round(diffs.reduce((acc,d)=>acc+(d.sim*ws[d.attr]),0)/totalW);
+  document.getElementById('simcn').textContent=C.name+' '+C.flag;
+  document.getElementById('simscore').textContent=weightedSim;
+  const grades=[[90,'🏆 Profil quasi-identique'],[75,'✦ Même ADN footballistique'],[60,'◉ Bonne ressemblance'],[45,'◎ Ressemblance partielle'],[30,'△ Profils différents'],[0,'◇ Profils opposés']];
+  const grade=grades.find(([min])=>weightedSim>=min);
+  document.getElementById('simgrade').textContent=grade?grade[1]:'';
+  const best=diffs.reduce((a,b)=>a.sim>b.sim?a:b);
+  const worst=diffs.reduce((a,b)=>a.sim<b.sim?a:b);
+  document.getElementById('simcomment').innerHTML=`<span style="color:var(--g2)">✓ Point commun : ${labels[best.attr]} (${best.sim}%)</span><br><span style="color:var(--r)">↑ Plus gros écart : ${labels[worst.attr]} (${worst.sim}%)</span>`;
+  const stars=Math.round(weightedSim/20);
+  document.getElementById('simstars').innerHTML=Array.from({length:5},(_,i)=>`<span style="font-size:14px;color:${i<stars?'var(--g)':'var(--k6)'}">${i<stars?'★':'☆'}</span>`).join('')+` <span style="font-family:'Space Mono',monospace;font-size:8px;color:var(--dim);margin-left:6px;">${stars}/5</span>`;
+  document.getElementById('simbars').innerHTML=diffs.map(d=>{
+    const col=scoreColor(d.sim);
+    return`<div style="display:grid;grid-template-columns:130px 1fr 36px 36px 48px;align-items:center;gap:8px;margin-bottom:10px;">
+      <div style="font-family:'Space Mono',monospace;font-size:7px;color:var(--d2);letter-spacing:1px;text-transform:uppercase;">${labels[d.attr]}</div>
+      <div style="height:5px;background:var(--k5);position:relative;">
+        <div style="position:absolute;left:0;top:0;height:5px;width:${d.u}%;background:${col};transition:width 1.1s ease;"></div>
+        <div style="position:absolute;left:0;top:0;height:5px;width:${d.c}%;background:rgba(142,139,160,.2);border-right:2px solid var(--d2);transition:width 1.1s ease;"></div>
+      </div>
+      <div style="font-family:'Playfair Display',serif;font-size:13px;font-weight:700;text-align:right;color:${col}">${d.u}</div>
+      <div style="font-family:'Playfair Display',serif;font-size:13px;font-weight:700;text-align:right;color:var(--d2)">${d.c}</div>
+      <div style="font-family:'Space Mono',monospace;font-size:8px;text-align:right;color:${col}">${d.sim}%</div>
+    </div>`;
+  }).join('');
+  const sorted=diffs.slice().sort((a,b)=>a.sim-b.sim);
+  const tips={'vitesse':'Sprints 30m × 10 / 3x semaine.','technique':'30 min contrôle orienté quotidien.','physique':'Renforcement jambes + gainage 3x semaine.','mental':'Répète les situations de pression à l\'entraînement.','vision':'Rondos et jeux en espace réduit.','defense':'Travaille les interceptions et duels 1v1.','endurance':'Fractionné 4×4min à 90% FC max.','puissance':'Pliométrie 2x/semaine (box jumps, squats sautés).'};
+  document.getElementById('simtips').innerHTML=`<div style="font-family:'Space Mono',monospace;font-size:7px;color:var(--g3);letter-spacing:3px;text-transform:uppercase;margin-bottom:9px;">3 priorités pour ressembler à ${C.name}</div>`+sorted.slice(0,3).map(d=>`<div style="display:flex;gap:8px;margin-bottom:8px;padding:10px 14px;background:var(--k3);border-left:2px solid ${scoreColor(d.sim)};"><div><span style="font-family:'Space Mono',monospace;font-size:7px;color:${scoreColor(d.sim)};letter-spacing:2px;text-transform:uppercase;">${labels[d.attr]}</span><br><span style="font-size:11px;color:var(--d2);font-weight:300;">${tips[d.attr]||'Travaille cet attribut.'}</span></div></div>`).join('');
+}
+
+function buildRadar(s){
+  if(!C) return;
+  const svg=document.getElementById('radarsvg');
+  const cx=120,cy=120,r=90,n=8;
+  const labels=['Vitesse','Technique','Physique','Mental','Vision','Défense','Endurance','Puissance'];
+  const ca=C.attrs;
+  const uR=[s.sprScore,Math.round((s.lvlScore+(s.paccScore||0))/2)||s.lvlScore,Math.round((s.bmiScore+s.detScore)/2)||s.bmiScore,Math.round((s.ageScore+s.expScore)/2)||s.ageScore,s.paccScore||s.lvlScore,s.duelScore||Math.round(s.lvlScore*0.85),s.distScore,Math.round((s.detScore+(s.sprmScore||0))/2)||s.detScore];
+  const cR=[ca.vitesse,ca.technique,ca.physique,ca.mental,ca.vision,ca.defense,ca.endurance,ca.puissance];
+  const pts=(vals)=>vals.map((v,i)=>{const a=(i/n)*2*Math.PI-Math.PI/2;const rv=r*(Math.min(v,100)/100);return`${cx+rv*Math.cos(a)},${cy+rv*Math.sin(a)}`;}).join(' ');
+  let web='';
+  [20,40,60,80,100].forEach(p=>{const pp=Array.from({length:n},(_,i)=>{const a=(i/n)*2*Math.PI-Math.PI/2;const rv=r*(p/100);return`${cx+rv*Math.cos(a)},${cy+rv*Math.sin(a)}`;}).join(' ');web+=`<polygon points="${pp}" fill="none" stroke="rgba(201,168,76,${p===100?'.1':'.05'})" stroke-width="1"/>`;});
+  const axes=Array.from({length:n},(_,i)=>{const a=(i/n)*2*Math.PI-Math.PI/2;return`<line x1="${cx}" y1="${cy}" x2="${cx+r*Math.cos(a)}" y2="${cy+r*Math.sin(a)}" stroke="rgba(201,168,76,.08)" stroke-width="1"/>`;}).join('');
+  const lbs=labels.map((l,i)=>{const a=(i/n)*2*Math.PI-Math.PI/2;const lx=cx+(r+18)*Math.cos(a);const ly=cy+(r+18)*Math.sin(a);return`<text x="${lx}" y="${ly+4}" text-anchor="middle" fill="rgba(142,139,160,.7)" font-size="7.5" font-family="Space Mono">${l.toUpperCase()}</text>`;}).join('');
+  svg.innerHTML=web+axes+lbs+`<polygon points="${pts(cR)}" fill="rgba(201,168,76,.04)" stroke="rgba(201,168,76,.35)" stroke-width="1.5" stroke-dasharray="4,2"/><polygon points="${pts(uR)}" fill="rgba(93,184,122,.08)" stroke="rgba(93,184,122,.7)" stroke-width="2"/>`;
+  document.getElementById('radar-title').textContent=`Toi vs ${C.name}`;
+  document.getElementById('radar-sub').textContent='Vert = toi · Pointillés = champion';
+  document.getElementById('radar-legend').innerHTML=labels.map((l,i)=>{const u=uR[i]||0;const ch=cR[i]||0;const diff=u-ch;return`<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;"><div style="width:8px;height:8px;border-radius:50%;background:rgba(93,184,122,.8);flex-shrink:0;"></div><div style="font-family:'Space Mono',monospace;font-size:7px;color:var(--dim);flex:1;text-transform:uppercase;">${l}</div><span style="font-family:'Playfair Display',serif;font-size:13px;font-weight:700;color:${scoreColor(100-Math.abs(diff))}">${u}</span><span style="font-size:9px;color:var(--dim)">vs</span><span style="font-family:'Playfair Display',serif;font-size:13px;color:var(--d2)">${ch}</span><span style="font-family:'Space Mono',monospace;font-size:8px;color:${diff>=0?'var(--g2)':'var(--r)'}">${diff>=0?'+'+diff:diff}</span></div>`;}).join('');
+}
+
+function buildTable(s){
+  const pos=document.getElementById('bpos')?.value||'Milieu Central';
+  const std=PROSTD[pos]||PROSTD['Milieu Central'];
+  const rows=[
+    {lbl:'Taille',u:s.h?s.h+'cm':'—',pro:std.taille.l,ok:s.h>0&&Math.abs(s.h-std.taille.v)<=10,txt:s.h>std.taille.v+10?'Au-dessus de la norme':s.h<std.taille.v-10?'En dessous':'✓ Dans la norme'},
+    {lbl:'Poids',u:s.w?s.w+'kg':'—',pro:std.poids.l,ok:s.w>0&&Math.abs(s.w-std.poids.v)<=8,txt:s.w>std.poids.v+8?'Surpoids à travailler':s.w<std.poids.v-8?'Sous-poids':'✓ Poids idéal'},
+    {lbl:'Sprint 30m',u:s.spr?s.spr+'s':'—',pro:std.sprint.l,ok:s.spr>0&&s.spr<=parseFloat(std.sprint.l.replace('<',''))+0.15,txt:s.spr>0&&s.spr>parseFloat(std.sprint.l.replace('<',''))+0.15?`Trop lent de ${(s.spr-parseFloat(std.sprint.l.replace('<',''))).toFixed(1)}s`:'✓ Vitesse correcte'},
+    {lbl:'Détente',u:s.det?s.det+'cm':'—',pro:std.detente.l,ok:s.det>=parseInt(std.detente.l.replace('>','')),txt:s.det>0&&s.det<parseInt(std.detente.l.replace('>',''))?`Écart de ${parseInt(std.detente.l.replace('>',''))-s.det}cm`:'✓ Détente correcte'},
+    {lbl:'Distance/match',u:s.dist?s.dist+'km':'—',pro:std.dist.l,ok:s.dist>0&&s.dist>=parseFloat(std.dist.l.split('-')[0])-1,txt:s.dist>0&&s.dist<parseFloat(std.dist.l.split('-')[0])-1?`Manque ${(parseFloat(std.dist.l.split('-')[0])-s.dist).toFixed(1)}km`:'✓ Endurance correcte'},
+    {lbl:'VO2max',u:s.vo2?s.vo2+' ml/kg/min':'—',pro:std.vo2.l,ok:s.vo2>0&&s.vo2>=std.vo2.v-8,txt:s.vo2>0&&s.vo2<std.vo2.v-8?`Déficit de ${std.vo2.v-s.vo2}`:'✓ Dans la norme'},
+  ];
+  document.getElementById('cmptb').innerHTML=rows.map(r=>`<tr><td>${r.lbl}</td><td class="${r.ok?'vg':'vr'}">${r.u}</td><td>${r.pro}</td><td style="text-align:center">${r.u==='—'?'<span style="color:var(--dim)">—</span>':r.ok?'<span class="vg">✓</span>':'<span class="vr">⚠</span>'}</td><td class="${r.ok?'vg':'vr'}">${r.txt}</td></tr>`).join('');
+}
+
+async function doBio(){
+  if(!C){tst('⚠ Choisissez un champion d\'abord');return;}
+  const s=calcScores();
+  const bres=document.getElementById('bres');
+  const brbb=document.getElementById('brbb');
+  bres.classList.add('on');
+  brbb.innerHTML='<div class="dts"><span></span><span></span><span></span><span class="dtx">Analyse biométrique complète...</span></div>';
+  document.getElementById('brets').textContent=new Date().toLocaleTimeString();
+  const ca=C.attrs;
+  const prompt=`Tu es ${C.name} (${C.pos}). Philosophie: ${C.motto}. Tes attributs: Vitesse ${ca.vitesse}, Technique ${ca.technique}, Physique ${ca.physique}, Mental ${ca.mental}.
+
+Données joueur: Âge ${s.age||'?'} | Taille ${s.h||'?'}cm | Poids ${s.w||'?'}kg | Poste ${document.getElementById('bpos')?.value||'?'}
+Sprint 30m: ${s.spr||'?'}s | Détente: ${s.det||'?'}cm | Distance/match: ${s.dist||'?'}km | VO2max: ${s.vo2||'?'}
+Passes réussies: ${s.pacc||'?'}% | Duels gagnés: ${s.duel||'?'}% | Niveau: ${document.getElementById('blvl')?.value||'?'}
+
+Profil: ${profStr()}
+
+Analyse complète et honnête:
+**① Diagnostic physique** — 3 points forts réels (avec chiffres)
+**② Lacunes à corriger** — sois direct, cite les déficits
+**③ Ressemblance physique avec moi** — points communs vs différences
+**④ Programme prioritaire (3 axes)** — méthodes concrètes
+**⑤ Projection à 1 an** — réaliste, pas flatteur
+
+Réponds en ${lk()}. Sois exigeant.`;
+  const resp=await callAI([{role:'user',content:prompt}],1200);
+  brbb.innerHTML=fmt(resp);
+}
+
+// ═══════════════════════════════════════════════════════
+// TRAINING
+// ═══════════════════════════════════════════════════════
+function buildTW(){
+  const days=['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
+  const trainDays=P.train||['Mar','Jeu','Sam'];
+  const matchDay=P.match||'Sam';
+  const today=new Date().getDay();
+  const todayName=days[today===0?6:today-1];
+  const icons={vitesse:'⚡',technique:'⚽',physique:'💪',tactique:'🧠',repos:'—',match:'🏆'};
+  const type={mbappe:['vitesse','technique','repos','physique','repos','match','repos'],messi:['technique','repos','tactique','technique','repos','match','repos'],ronaldo:['physique','technique','physique','repos','technique','match','repos'],default:['technique','physique','tactique','repos','technique','match','repos']};
+  const t=type[C?.id]||type.default;
+  document.getElementById('twk').innerHTML=days.map((d,i)=>{
+    const isMatch=d===matchDay,isTrain=trainDays.includes(d);
+    const tp=isMatch?'match':isTrain?t[i]:'repos';
+    return`<div class="twc ${d===todayName?'today':''} ${tp==='repos'&&!isMatch?'rest':''}"><div class="twd">${d}</div><div class="twico">${icons[tp]||'—'}</div><div class="twtp">${tp}</div></div>`;
+  }).join('');
+  const sessions=[
+    {t:'Vitesse & Explosivité',day:'Lun',dur:'65 min',ico:'⚡',items:['Sprints 30m × 8 (récup 2min)','Plyométrie 4×10 sauts','Course seuil 3×6min','Étirements 15min']},
+    {t:'Technique Balle',day:'Mar',dur:'75 min',ico:'⚽',items:['Jonglerie 15min','Contrôle orienté 20min','Rondos 4v2 × 6 séries','Frappes 30min']},
+    {t:'Physique Général',day:'Jeu',dur:'60 min',ico:'💪',items:['Gainage 3×45s','Renforcement jambes','Proprioception 15min','Récupération active']},
+    {t:'Tactique & Analyse',day:'Sam',dur:'60 min',ico:'🧠',items:['Vidéo adversaire 15min','Positionnement 20min','Transitions 15min','Récupération']},
+  ];
+  document.getElementById('tpg').innerHTML=sessions.map(s=>`<div class="tpc"><div class="tph"><div><div class="tptt">${s.t}</div><div class="tpm">${s.day} · ${s.dur}</div></div><div class="tpi">${s.ico}</div></div><ul class="tpl">${s.items.map(i=>`<li>${i}</li>`).join('')}</ul></div>`).join('');
+}
+
+async function doTrain(){
+  if(!C){tst('⚠ Choisissez un champion d\'abord');return;}
+  const tres=document.getElementById('tres');
+  const trbb=document.getElementById('trbb');
+  tres.classList.add('on');
+  trbb.innerHTML='<div class="dts"><span></span><span></span><span></span><span class="dtx">Génération plan training...</span></div>';
+  const resp=await callAI([{role:'user',content:`Tu es ${C.name}. Philosophie: ${C.motto}.\n\nProfil: ${profStr()}\nJours: ${(P.train||[]).join(', ')||'?'} | Match: ${P.match||'?'} | Faiblesses: ${P.faibles||'?'}\n\nCrée un plan d'entraînement hebdomadaire complet (4-5 sessions) dans ta philosophie.\nPour chaque session: **[Jour] — [Type] (durée)** + 4-5 exercices + 1 conseil.\nAdapte au poste (${P.poste||'?'}), niveau (${P.niveau||'?'}), faiblesses.\nRéponds en ${lk()}.`}],1000);
+  trbb.innerHTML=fmt(resp);
+}
+
+// ═══════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded',()=>{
+  buildHome();
+  fillP();
+  if(C){updChampUI();document.getElementById('nca').textContent=C.flag;document.getElementById('ncn').textContent=C.name;}
+  sL(lang);
+});
+</script>
+</body>
+</html>
